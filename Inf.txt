@@ -1,0 +1,3764 @@
+import {j as e} from "./ui-D1tC1Poa.js";
+import {r as i} from "./react-CUmj1JRp.js";
+import {B as M, r as p, s as He, _ as lt, q as O, I as mt, u as ht, H as pt, N as ut, F as xt} from "./index-JT9fKGBz.js";
+import {B as fe} from "./badge-CH5shJle.js";
+import {d as wt, i as ft, f as le, a as ct, b as yt, s as bt, e as jt, p as We, E as vt, D as kt} from "./DiscordInvite-2lu0elP7.js";
+import {C as F, b as be, c as je, d as _t, a as te} from "./card-BPuaZTBF.js";
+import {g as ce} from "./tradeHelperUtils-CId84xKt.js";
+import {R as de, K as Te, ag as Ie, af as ve, b as Pe, V as Nt, z as St, X as Ct, I as Mt, ar as Re, as as Ve, at as tt, au as st, av as rt, aw as at, ap as ot, ax as Gt, ay as Tt, az as It} from "./utils-DK9i09Fw.js";
+import {D as Et, b as Dt, c as Bt, d as Ut, e as zt} from "./dialog-XQh5hDej.js";
+import {R as Lt, B as At, C as $t, X as Wt, Y as Pt, T as Rt, a as Vt} from "./charts-ufdnUPIA.js";
+import "./reactRouter-DyWhkki2.js";
+const ie = 5
+  , Ee = 30
+  , ye = {
+    gear_stock: [{
+        id: 0,
+        item_id: "loading_gear",
+        type: "gear_stock",
+        date: new Date().toISOString(),
+        price: 0,
+        active: !0,
+        alert_sent: !1,
+        display_name: "Loading...",
+        multiplier: 1
+    }],
+    seeds_stock: [{
+        id: 0,
+        item_id: "loading_seeds",
+        type: "seeds_stock",
+        date: new Date().toISOString(),
+        price: 0,
+        active: !0,
+        alert_sent: !1,
+        display_name: "Loading...",
+        multiplier: 1
+    }],
+    egg_stock: [{
+        id: 0,
+        item_id: "loading_egg",
+        type: "egg_stock",
+        date: new Date().toISOString(),
+        price: 0,
+        active: !0,
+        alert_sent: !1,
+        display_name: "Loading...",
+        multiplier: 1
+    }]
+};
+function Ht(t) {
+    if (t <= 0)
+        return "Updating...";
+    const s = Math.floor(t / 1e3)
+      , o = Math.floor(s / 3600)
+      , u = Math.floor(s % 3600 / 60)
+      , d = s % 60
+      , r = o.toString().padStart(2, "0")
+      , n = u.toString().padStart(2, "0")
+      , l = d.toString().padStart(2, "0");
+    return `${r}:${n}:${l}`
+}
+function Ot(t) {
+    const s = new Date
+      , o = t === "egg_stock" ? Ee : ie
+      , u = s.getUTCHours() * 60 + s.getUTCMinutes()
+      , r = (Math.floor(u / o) + 1) * o
+      , n = new Date(Date.UTC(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate(), Math.floor(r / 60), r % 60, 0, 0));
+    return ft(n, s) && n.setUTCDate(n.getUTCDate() + 1),
+    n
+}
+function P(t) {
+    const s = new Date
+      , o = Ot(t);
+    return Math.max(0, wt(o, s))
+}
+function se(t) {
+    const s = new Date
+      , o = t === "egg_stock" ? Ee : ie
+      , u = s.getUTCHours() * 60 + s.getUTCMinutes()
+      , r = Math.floor(u / o) * o;
+    return new Date(Date.UTC(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate(), Math.floor(r / 60), r % 60, 0, 0))
+}
+function Je(t, s) {
+    if (t === "egg_stock")
+        return !s;
+    const o = se(t);
+    return !(s && s >= o)
+}
+function Ft(t, s=!0) {
+    try {
+        const o = new Date(t);
+        return s ? le(o, "MMM d, yyyy - h:mm a") : le(o, "MMM d, yyyy - h:mm a 'UTC'", {
+            timeZone: "UTC"
+        })
+    } catch (o) {
+        return console.error("Error formatting date:", o),
+        "Invalid date"
+    }
+}
+const nt = ({expiryTimeMs: t, onExpire: s}) => {
+    const [o,u] = i.useState(t);
+    return i.useEffect( () => {
+        const d = setInterval( () => {
+            u(r => {
+                const n = Math.max(0, r - 1e3);
+                return n === 0 && s && s(),
+                n
+            }
+            )
+        }
+        , 1e3);
+        return () => clearInterval(d)
+    }
+    , [s]),
+    i.useEffect( () => {
+        u(t)
+    }
+    , [t]),
+    e.jsx("span", {
+        children: Ht(o)
+    })
+}
+  , Qe = ({title: t, type: s, stocks: o, isValid: u, isUpdating: d, isMaintenanceMode: r=!1, timeUntilNextUpdate: n, previousStocks: l, onShowPrevious: f, onViewHistory: j, refreshing: x=!1, isViewingPrevious: k}) => {
+    const v = k !== void 0 ? k : t.toLowerCase().includes("previous")
+      , _ = o.filter(c => !c.item_id.startsWith("loading_"))
+      , m = d && !r && l && l.length > 0 && f !== void 0
+      , a = ( () => {
+        switch (s) {
+        case "gear_stock":
+            return {
+                header: "bg-gradient-to-r from-blue-600 to-blue-800 text-white",
+                border: "border-t-blue-500",
+                updateInterval: "5 minutes",
+                buttonBorder: "border-blue-500/20",
+                buttonHover: "hover:from-blue-900/30 hover:to-blue-700/30",
+                iconColor: "text-blue-400",
+                loadingColor: "text-blue-500"
+            };
+        case "seeds_stock":
+            return {
+                header: "bg-gradient-to-r from-green-600 to-green-800 text-white",
+                border: "border-t-green-500",
+                updateInterval: "5 minutes",
+                buttonBorder: "border-green-500/20",
+                buttonHover: "hover:from-green-900/30 hover:to-green-700/30",
+                iconColor: "text-green-400",
+                loadingColor: "text-green-500"
+            };
+        case "egg_stock":
+            return {
+                header: "bg-gradient-to-r from-yellow-600 to-amber-700 text-white",
+                border: "border-t-yellow-500",
+                updateInterval: "30 minutes",
+                buttonBorder: "border-yellow-500/20",
+                buttonHover: "hover:from-yellow-900/30 hover:to-amber-700/30",
+                iconColor: "text-yellow-400",
+                loadingColor: "text-yellow-500"
+            };
+        default:
+            return {
+                header: "bg-gradient-to-r from-gray-600 to-gray-800 text-white",
+                border: "border-t-gray-500",
+                updateInterval: "regularly",
+                buttonBorder: "border-gray-500/20",
+                buttonHover: "hover:from-gray-900/30 hover:to-gray-700/30",
+                iconColor: "text-gray-400",
+                loadingColor: "text-gray-500"
+            }
+        }
+    }
+    )();
+    return e.jsxs(F, {
+        className: `overflow-hidden border-t-4 bg-gray-950 border border-gray-800 text-white shadow-lg shadow-blue-500/5 relative ${a.border}`,
+        children: [x && e.jsx("div", {
+            className: "absolute inset-0 bg-black/40 backdrop-blur-sm z-10 flex items-center justify-center rounded-sm",
+            children: e.jsxs("div", {
+                className: "bg-gray-900/90 p-4 rounded-lg border border-blue-500/30 flex flex-col items-center space-y-2",
+                children: [e.jsx(de, {
+                    size: 24,
+                    className: `${a.loadingColor} animate-spin`
+                }), e.jsx("span", {
+                    className: "text-white",
+                    children: "Refreshing data..."
+                })]
+            })
+        }), e.jsxs(be, {
+            className: a.header,
+            children: [e.jsxs("div", {
+                className: "flex justify-between items-center",
+                children: [e.jsx(je, {
+                    className: "text-white",
+                    children: t
+                }), e.jsx("div", {
+                    className: "text-sm font-normal text-white/90 bg-black/20 px-3 py-1 rounded-full",
+                    children: d ? e.jsxs("span", {
+                        children: ["Next update: ", e.jsx(nt, {
+                            expiryTimeMs: n
+                        })]
+                    }) : e.jsxs("span", {
+                        children: ["Next update: ", e.jsx(nt, {
+                            expiryTimeMs: n
+                        })]
+                    })
+                })]
+            }), e.jsxs(_t, {
+                className: "text-white/90",
+                children: ["Updates every ", a.updateInterval]
+            }), v && f && e.jsxs("div", {
+                className: "mt-2 py-2 px-3 bg-yellow-900/40 border border-yellow-500/30 rounded flex items-center justify-between",
+                children: [e.jsxs("div", {
+                    className: "flex items-center gap-2 text-yellow-300",
+                    children: [e.jsx(Te, {
+                        size: 16,
+                        className: "text-yellow-400"
+                    }), e.jsx("span", {
+                        className: "text-sm",
+                        children: "You are viewing previous stock data"
+                    })]
+                }), e.jsxs(M, {
+                    size: "sm",
+                    variant: "ghost",
+                    className: "bg-yellow-800/50 hover:bg-yellow-700/50 text-white text-xs py-1 px-3 h-auto",
+                    onClick: f,
+                    children: [e.jsx(Ie, {
+                        size: 14,
+                        className: "mr-1"
+                    }), "Back to Current Stock"]
+                })]
+            })]
+        }), e.jsx(te, {
+            className: "p-0",
+            children: v && _.length === 0 ? e.jsxs("div", {
+                className: "p-8 text-center",
+                children: [e.jsx(Te, {
+                    size: 32,
+                    className: "text-yellow-500 mb-4 mx-auto"
+                }), e.jsx("div", {
+                    className: "text-xl font-semibold text-yellow-500 mb-2",
+                    children: "No Previous Stock Available"
+                }), e.jsx("p", {
+                    className: "text-gray-400",
+                    children: "There is no previous stock data to display at this time."
+                }), f && e.jsxs(M, {
+                    variant: "outline",
+                    className: "mt-6 bg-yellow-800/50 hover:bg-yellow-700/50 text-white border-yellow-500/30",
+                    onClick: f,
+                    children: [e.jsx(Ie, {
+                        className: "h-4 w-4 mr-2 text-yellow-400"
+                    }), "Back to Current Stock"]
+                })]
+            }) : d && !r && !v ? e.jsxs("div", {
+                className: "min-h-[200px]",
+                children: [e.jsx("div", {
+                    className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-4",
+                    children: [1, 2, 3, 4, 5, 6].map(c => e.jsxs("div", {
+                        className: "skeleton-loader rounded-lg p-3",
+                        children: [e.jsx("div", {
+                            className: "h-4 bg-gray-700 rounded w-3/4 mb-2"
+                        }), e.jsx("div", {
+                            className: "h-3 bg-gray-700 rounded w-1/2"
+                        })]
+                    }, c))
+                }), e.jsxs("div", {
+                    className: "p-4 text-center border-t border-gray-800",
+                    children: [e.jsxs("div", {
+                        className: "animate-pulse flex items-center justify-center gap-2 text-yellow-500",
+                        children: [e.jsx(de, {
+                            size: 16,
+                            className: "animate-spin"
+                        }), e.jsx("span", {
+                            className: "text-sm",
+                            children: "Extracting Current Items..."
+                        })]
+                    }), m && e.jsx("button", {
+                        onClick: f,
+                        className: "mt-3 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-white transition-colors border border-gray-700 text-sm",
+                        children: "View Previous Stock"
+                    })]
+                })]
+            }) : r && _.length === 0 ? e.jsxs("div", {
+                className: "p-8 text-center",
+                children: [e.jsxs("div", {
+                    className: "flex flex-col items-center justify-center",
+                    children: [e.jsx(Te, {
+                        size: 32,
+                        className: "text-yellow-500 mb-4"
+                    }), e.jsx("div", {
+                        className: "text-xl font-semibold text-yellow-500 mb-2",
+                        children: "Extracting Current Items"
+                    }), e.jsxs("p", {
+                        className: "text-gray-400 max-w-md",
+                        children: ["The ", s.replace("_", " "), " data is currently being updated. We'll continue checking for new stock until fresh data is received from the current cycle."]
+                    })]
+                }), m && e.jsx("button", {
+                    onClick: f,
+                    className: "mt-6 px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded text-white transition-colors border border-gray-700 w-full md:w-auto min-h-[48px] text-base",
+                    children: "View Previous Stock"
+                })]
+            }) : u && _.length > 0 ? e.jsxs("div", {
+                children: [e.jsx("div", {
+                    className: "divide-y divide-gray-800",
+                    children: _.map( (c, h) => e.jsx("div", {
+                        className: "p-4 flex justify-between items-center hover:bg-gray-900/50 transition-colors",
+                        children: e.jsxs("div", {
+                            className: "flex items-center gap-3",
+                            children: [e.jsx("div", {
+                                className: `w-10 h-10 rounded-lg overflow-hidden bg-gradient-to-br from-${s === "gear_stock" ? "blue" : s === "seeds_stock" ? "green" : "yellow"}-500/20 to-${s === "gear_stock" ? "cyan" : s === "seeds_stock" ? "emerald" : "amber"}-500/20 p-0.5`,
+                                children: e.jsx("div", {
+                                    className: "w-full h-full bg-gray-900 rounded-[3px] flex items-center justify-center",
+                                    children: c.image_url ? e.jsx("img", {
+                                        src: c.image_url,
+                                        alt: `${c.display_name} ${s.replace("_", " ")} icon in Roblox Grow a Garden`,
+                                        title: `${c.display_name} - ${c.price} ${ce("growagarden")} - Grow a Garden`,
+                                        className: "w-full h-full object-contain",
+                                        onError: G => {
+                                            G.currentTarget.style.display = "none"
+                                        }
+                                    }) : e.jsxs(e.Fragment, {
+                                        children: [s === "gear_stock" && e.jsxs("svg", {
+                                            xmlns: "http://www.w3.org/2000/svg",
+                                            viewBox: "0 0 24 24",
+                                            fill: "none",
+                                            stroke: "currentColor",
+                                            strokeWidth: "2",
+                                            strokeLinecap: "round",
+                                            strokeLinejoin: "round",
+                                            className: "w-6 h-6 text-blue-400",
+                                            children: [e.jsx("circle", {
+                                                cx: "12",
+                                                cy: "12",
+                                                r: "3"
+                                            }), e.jsx("path", {
+                                                d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                                            })]
+                                        }), s === "seeds_stock" && e.jsx("svg", {
+                                            xmlns: "http://www.w3.org/2000/svg",
+                                            viewBox: "0 0 24 24",
+                                            fill: "none",
+                                            stroke: "currentColor",
+                                            strokeWidth: "2",
+                                            strokeLinecap: "round",
+                                            strokeLinejoin: "round",
+                                            className: "w-6 h-6 text-green-400",
+                                            children: e.jsx("path", {
+                                                d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                                            })
+                                        }), s === "egg_stock" && e.jsx("svg", {
+                                            xmlns: "http://www.w3.org/2000/svg",
+                                            viewBox: "0 0 24 24",
+                                            fill: "none",
+                                            stroke: "currentColor",
+                                            strokeWidth: "2",
+                                            strokeLinecap: "round",
+                                            strokeLinejoin: "round",
+                                            className: "w-6 h-6 text-yellow-400",
+                                            children: e.jsx("path", {
+                                                d: "M12 2C6 2 2 12 2 18s4 4 10 4 10 2 10-4-4-16-10-16z"
+                                            })
+                                        })]
+                                    })
+                                })
+                            }), e.jsxs("div", {
+                                className: "flex flex-col",
+                                children: [e.jsxs("span", {
+                                    className: "text-white text-sm",
+                                    children: [c.display_name, c.multiplier && e.jsxs("span", {
+                                        className: `ml-2 font-medium ${a.iconColor}`,
+                                        children: [c.multiplier, "x"]
+                                    })]
+                                }), c.price !== void 0 && c.price > 0 && e.jsxs("div", {
+                                    className: "text-xs text-gray-400",
+                                    children: [e.jsx("span", {
+                                        children: ce("growagarden")
+                                    }), e.jsxs("span", {
+                                        className: `ml-2 font-mono ${a.iconColor}`,
+                                        children: ["$", c.price.toLocaleString()]
+                                    })]
+                                })]
+                            })]
+                        })
+                    }, `${c.item_id}-${h}`))
+                }), e.jsx("div", {
+                    className: "p-4 border-t border-gray-800",
+                    children: e.jsxs("div", {
+                        className: "flex space-x-2",
+                        children: [v && f ? e.jsxs(M, {
+                            variant: "outline",
+                            size: "sm",
+                            className: "flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-800/70 to-amber-900/70 hover:from-yellow-700/70 hover:to-amber-800/70 border-yellow-500/30 text-white min-h-[48px] text-base p-3",
+                            onClick: f,
+                            children: [e.jsx(Ie, {
+                                className: "h-4 w-4 text-yellow-400"
+                            }), "Back to Current Stock"]
+                        }) : e.jsxs(M, {
+                            variant: "outline",
+                            size: "sm",
+                            className: `flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 ${a.buttonHover} ${a.buttonBorder} text-white min-h-[48px] text-base p-3`,
+                            onClick: j,
+                            children: [e.jsx(ve, {
+                                className: `h-4 w-4 ${a.iconColor}`
+                            }), "View Stock History"]
+                        }), !v && l && l.length > 0 && !r && d && e.jsx(M, {
+                            variant: "outline",
+                            size: "sm",
+                            className: `flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 ${a.buttonHover} ${a.buttonBorder} text-white min-h-[48px] text-base p-3`,
+                            onClick: f,
+                            children: "Previous Stock"
+                        })]
+                    })
+                })]
+            }) : e.jsxs("div", {
+                className: "p-8 text-center",
+                children: [v ? e.jsxs(e.Fragment, {
+                    children: [e.jsx(Te, {
+                        size: 32,
+                        className: "text-yellow-500 mb-4 mx-auto"
+                    }), e.jsx("div", {
+                        className: "text-xl font-semibold text-yellow-500 mb-2",
+                        children: "No Previous Stock Available"
+                    }), e.jsx("p", {
+                        className: "text-gray-400",
+                        children: "There is no previous stock data to display at this time."
+                    }), f && e.jsxs(M, {
+                        variant: "outline",
+                        className: "mt-6 bg-yellow-800/50 hover:bg-yellow-700/50 text-white border-yellow-500/30",
+                        onClick: f,
+                        children: [e.jsx(Ie, {
+                            className: "h-4 w-4 mr-2 text-yellow-400"
+                        }), "Back to Current Stock"]
+                    })]
+                }) : d ? e.jsxs("div", {
+                    className: "animate-pulse flex flex-col items-center justify-center",
+                    children: [e.jsx(de, {
+                        size: 32,
+                        className: "text-yellow-500 animate-spin mb-4"
+                    }), e.jsx("div", {
+                        className: "text-xl font-semibold text-yellow-500 mb-2",
+                        children: "Extracting Current Items"
+                    }), e.jsxs("p", {
+                        className: "text-gray-400 max-w-md",
+                        children: ["The ", s.replace("_", " "), " data is currently being updated. Waiting for new items from the current cycle."]
+                    }), e.jsx("p", {
+                        className: "text-gray-500 text-sm mt-2",
+                        children: "Checking for updates every 3 seconds..."
+                    })]
+                }) : e.jsxs("div", {
+                    className: "flex flex-col items-center justify-center",
+                    children: [e.jsx(Te, {
+                        size: 32,
+                        className: "text-yellow-500 mb-4"
+                    }), e.jsx("div", {
+                        className: "text-xl font-semibold text-yellow-500 mb-2",
+                        children: "Under Maintenance"
+                    }), e.jsxs("p", {
+                        className: "text-gray-400 max-w-md",
+                        children: ["The ", s.replace("_", " "), " data is currently being updated. Please check back in a few minutes."]
+                    })]
+                }), m && e.jsx("button", {
+                    onClick: f,
+                    className: "mt-6 px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded text-white transition-colors border border-gray-700 w-full md:w-auto min-h-[48px] text-base",
+                    children: "View Previous Stock"
+                })]
+            })
+        })]
+    })
+}
+;
+async function it() {
+    p.info("Fetching Grow a Garden stock data..."),
+    console.log("🌱 [Garden Stock] Fetching stock data from database...");
+    try {
+        const {data: t, error: s} = await He.from("growagarden_stock").select("*").order("date", {
+            ascending: !1
+        });
+        if (s)
+            return p.error("Error fetching Grow a Garden stock data:", s),
+            console.error("🌱 [Garden Stock] Error fetching data:", s),
+            p.info("Using placeholder data due to fetch error"),
+            ye;
+        if (p.info("Received Grow a Garden stock data:", t),
+        console.log(`🌱 [Garden Stock] Received ${(t == null ? void 0 : t.length) || 0} items from database`),
+        !t || t.length === 0)
+            return p.info("No Grow a Garden stock data found, returning placeholder data"),
+            console.log("🌱 [Garden Stock] No data found, using placeholder data"),
+            ye;
+        const o = se("gear_stock")
+          , u = se("seeds_stock")
+          , d = se("egg_stock");
+        p.debug("Current cycle start times:", {
+            gear: o.toISOString(),
+            seeds: u.toISOString(),
+            egg: d.toISOString()
+        }),
+        console.log("🌱 [Garden Stock] Current cycle start times:"),
+        console.log(`- Gear cycle: ${o.toISOString()}`),
+        console.log(`- Seeds cycle: ${u.toISOString()}`),
+        console.log(`- Egg cycle: ${d.toISOString()}`);
+        const r = []
+          , n = []
+          , l = []
+          , {getItemPriceInSheckles: f, getItemImageUrl: j} = await lt(async () => {
+            const {getItemPriceInSheckles: m, getItemImageUrl: I} = await Promise.resolve().then( () => gt);
+            return {
+                getItemPriceInSheckles: m,
+                getItemImageUrl: I
+            }
+        }
+        , void 0);
+        t == null || t.forEach(m => {
+            if (m.active === !0) {
+                const I = f(m.item_id)
+                  , a = j(m.item_id)
+                  , c = {
+                    id: m.id,
+                    item_id: m.item_id,
+                    type: m.type,
+                    date: m.date,
+                    price: I !== void 0 ? I : m.price,
+                    active: m.active,
+                    alert_sent: m.alert_sent,
+                    display_name: m.display_name,
+                    multiplier: m.multiplier,
+                    image_url: a || m.image_url
+                }
+                  , h = new Date(m.date);
+                let G = !1;
+                m.type === "gear_stock" ? (G = h >= o,
+                G ? (r.push(c),
+                p.debug(`✅ Including gear item ${m.display_name} in current display`, {
+                    itemDate: h.toISOString(),
+                    cycleStart: o.toISOString()
+                })) : p.debug(`❌ Skipping gear item ${m.display_name} because it's from a previous cycle:`, {
+                    itemDate: h.toISOString(),
+                    cycleStart: o.toISOString()
+                })) : m.type === "seeds_stock" ? (G = h >= u,
+                G ? (n.push(c),
+                p.debug(`✅ Including seeds item ${m.display_name} in current display`, {
+                    itemDate: h.toISOString(),
+                    cycleStart: u.toISOString()
+                })) : p.debug(`❌ Skipping seeds item ${m.display_name} because it's from a previous cycle:`, {
+                    itemDate: h.toISOString(),
+                    cycleStart: u.toISOString()
+                })) : m.type === "egg_stock" && (l.push(c),
+                p.debug(`✅ Including egg item ${m.display_name} in display (no cycle check for eggs)`, {
+                    itemDate: h.toISOString()
+                }))
+            }
+        }
+        ),
+        p.debug("Filtered current cycle active items:", {
+            gear_stock: r,
+            seeds_stock: n,
+            egg_stock: l
+        }),
+        l.sort( (m, I) => new Date(I.date).getTime() - new Date(m.date).getTime()),
+        console.log("🌱 [Garden Stock] Filtered items:"),
+        console.log(`- Gear items: ${r.length} (filtered by current cycle)`),
+        console.log(`- Seeds items: ${n.length} (filtered by current cycle)`),
+        console.log(`- Egg items: ${l.length} (showing all active items)`);
+        let x = r.length > 0 ? r : ye.gear_stock
+          , k = n.length > 0 ? n : ye.seeds_stock
+          , v = l.length > 0 ? l : ye.egg_stock;
+        r.length === 0 && p.info("No gear items found for current cycle, using placeholder data to show updating state"),
+        n.length === 0 && p.info("No seeds items found for current cycle, using placeholder data to show updating state"),
+        l.length === 0 && p.info("No egg items found for current cycle, using placeholder data to show updating state");
+        const _ = {
+            gear_stock: x,
+            seeds_stock: k,
+            egg_stock: v
+        };
+        return console.log("🌱 [Garden Stock] Final result:"),
+        console.log(`- Gear items: ${x.length} (${x[0].item_id === "loading_gear" ? "UPDATING" : "CURRENT CYCLE"})`),
+        console.log(`- Seeds items: ${k.length} (${k[0].item_id === "loading_seeds" ? "UPDATING" : "CURRENT CYCLE"})`),
+        console.log(`- Egg items: ${v.length} (${v[0].item_id === "loading_egg" ? "UPDATING" : "CURRENT CYCLE"})`),
+        _
+    } catch (t) {
+        return p.error("Exception when fetching Grow a Garden stock data:", t),
+        p.info("Using placeholder data due to fetch exception"),
+        ye
+    }
+}
+async function qt(t) {
+    try {
+        const {data: s, error: o} = await He.from("growagarden_stock").select("*").eq("type", t).order("date", {
+            ascending: !1
+        });
+        if (o)
+            return p.error("Error fetching Grow a Garden history from stock table:", o),
+            [];
+        const {getItemPriceInSheckles: u, getItemImageUrl: d} = await lt(async () => {
+            const {getItemPriceInSheckles: l, getItemImageUrl: f} = await Promise.resolve().then( () => gt);
+            return {
+                getItemPriceInSheckles: l,
+                getItemImageUrl: f
+            }
+        }
+        , void 0)
+          , r = new Map;
+        s.forEach(l => {
+            r.has(l.item_id) ? r.get(l.item_id).dates.push(new Date(l.date)) : r.set(l.item_id, {
+                dates: [new Date(l.date)],
+                item: l
+            })
+        }
+        );
+        const n = [];
+        return r.forEach( (l, f) => {
+            l.dates.sort( (j, x) => x.getTime() - j.getTime()),
+            l.dates.forEach(j => {
+                const x = l.item
+                  , k = u(x.item_id)
+                  , v = d(x.item_id);
+                n.push({
+                    id: `${x.id}_${j.getTime()}`,
+                    item_id: x.item_id,
+                    type: x.type,
+                    date_added_to_stock: j.toISOString(),
+                    price: k !== void 0 ? k : x.price,
+                    display_name: x.display_name,
+                    image_url: v || x.image_url || null
+                })
+            }
+            )
+        }
+        ),
+        n.sort( (l, f) => new Date(f.date_added_to_stock).getTime() - new Date(l.date_added_to_stock).getTime()),
+        p.debug(`Generated ${n.length} history items from ${s.length} stock entries for ${t}`),
+        n
+    } catch (s) {
+        return p.error("Exception when fetching Grow a Garden history:", s),
+        []
+    }
+}
+function dt(t, s) {
+    const o = t.filter(j => j.item_id === s);
+    if (o.length <= 1)
+        return 1;
+    o.sort( (j, x) => new Date(j.date_added_to_stock).getTime() - new Date(x.date_added_to_stock).getTime());
+    const u = new Date(o[0].date_added_to_stock)
+      , d = new Date(o[o.length - 1].date_added_to_stock)
+      , r = ct(d, u) + 1;
+    let l = Math.max(1, Math.ceil(r / 25));
+    return l = [1, 3, 7, 14, 30, 60, 90, 180, 365].reduce( (j, x) => Math.abs(x - l) < Math.abs(j - l) ? x : j),
+    l
+}
+function Yt(t, s) {
+    const o = t.filter(r => r.item_id === s);
+    if (o.length === 0)
+        return [];
+    o.sort( (r, n) => new Date(r.date_added_to_stock).getTime() - new Date(n.date_added_to_stock).getTime());
+    const u = new Map;
+    o.forEach(r => {
+        const n = new Date(r.date_added_to_stock).toISOString().split("T")[0]
+          , l = u.get(n) || 0;
+        u.set(n, l + 1)
+    }
+    );
+    let d = Array.from(u.entries()).map( ([r,n]) => ({
+        date: r,
+        count: n
+    }));
+    if (d.sort( (r, n) => r.date.localeCompare(n.date)),
+    d.length > 0) {
+        const r = new Date(d[0].date)
+          , n = new Date;
+        if (ct(n, r) + 1 > 60 || d.length < 7) {
+            const x = dt(t, s);
+            if (x > 1) {
+                const k = []
+                  , v = [];
+                let _ = new Date(r);
+                for (; _ <= n; )
+                    v.push(new Date(_)),
+                    _.setDate(_.getDate() + 1);
+                for (let m = 0; m < v.length; m += x) {
+                    const I = v[m]
+                      , a = m + x < v.length ? new Date(v[m + x - 1]) : new Date(v[v.length - 1])
+                      , c = le(I, "yyyy-MM-dd");
+                    let h = 0;
+                    for (const G of o) {
+                        const T = new Date(G.date_added_to_stock);
+                        yt(T, {
+                            start: bt(I),
+                            end: jt(a)
+                        }) && h++
+                    }
+                    (h > 0 || k.length > 0) && k.push({
+                        date: c,
+                        count: h
+                    })
+                }
+                return k
+            }
+        }
+        const f = [];
+        let j = new Date(r);
+        for (; j <= n; ) {
+            const x = j.toISOString().split("T")[0]
+              , k = d.find(v => v.date === x);
+            f.push({
+                date: x,
+                count: k ? k.count : 0
+            }),
+            j.setDate(j.getDate() + 1)
+        }
+        return f
+    }
+    return d
+}
+const Kt = ({item: t, allHistoryItems: s}) => {
+    const [o,u] = i.useState(!1)
+      , r = ( () => {
+        switch (t.type) {
+        case "gear_stock":
+            return {
+                color: "text-blue-400",
+                bgLight: "bg-blue-800/20",
+                bgDark: "bg-blue-900/30",
+                border: "border-blue-500/20",
+                gradient: {
+                    start: "#3b82f6",
+                    end: "#6366f1"
+                }
+            };
+        case "seeds_stock":
+            return {
+                color: "text-green-400",
+                bgLight: "bg-green-800/20",
+                bgDark: "bg-green-900/30",
+                border: "border-green-500/20",
+                gradient: {
+                    start: "#22c55e",
+                    end: "#16a34a"
+                }
+            };
+        case "egg_stock":
+            return {
+                color: "text-yellow-400",
+                bgLight: "bg-yellow-800/20",
+                bgDark: "bg-yellow-900/30",
+                border: "border-yellow-500/20",
+                gradient: {
+                    start: "#eab308",
+                    end: "#d97706"
+                }
+            };
+        default:
+            return {
+                color: "text-gray-400",
+                bgLight: "bg-gray-800/20",
+                bgDark: "bg-gray-900/30",
+                border: "border-gray-500/20",
+                gradient: {
+                    start: "#9ca3af",
+                    end: "#6b7280"
+                }
+            }
+        }
+    }
+    )()
+      , n = i.useMemo( () => s.filter(a => a.item_id === t.item_id).sort( (a, c) => new Date(c.date_added_to_stock).getTime() - new Date(a.date_added_to_stock).getTime()), [s, t.item_id])
+      , l = i.useMemo( () => Yt(s, t.item_id), [s, t.item_id, o])
+      , f = i.useMemo( () => {
+        if (!o)
+            return 0;
+        const a = l.length;
+        return a <= 12 ? 0 : a <= 24 ? 1 : a <= 60 ? 2 : 3
+    }
+    , [l.length, o])
+      , j = i.useCallback(a => {
+        try {
+            return le(new Date(a), "MMM d, yyyy 'at' h:mm a")
+        } catch {
+            return "Unknown date"
+        }
+    }
+    , [])
+      , x = i.useCallback(a => {
+        try {
+            if (o) {
+                const c = dt(s, t.item_id);
+                return c >= 30 ? le(We(a), "MMM yyyy") : c >= 7 ? le(We(a), "MMM d") : le(We(a), "MMM d")
+            }
+            return le(We(a), "MMM d")
+        } catch {
+            return a
+        }
+    }
+    , [o, s, t.item_id])
+      , k = () => {
+        u(a => !a)
+    }
+      , v = i.useCallback( () => l.length <= 7 ? 30 : l.length <= 15 ? 20 : l.length <= 30 ? 12 : l.length <= 50 ? 8 : 6, [l.length])
+      , _ = n.length;
+    n.reduce( (a, c) => a + c.price, 0) / (_ || 1),
+    Math.min(...n.map(a => a.price)),
+    Math.max(...n.map(a => a.price));
+    const m = () => {
+        if (n.length <= 1)
+            return "First appearance";
+        const a = n.map(h => new Date(h.date_added_to_stock).getTime()).sort( (h, G) => h - G)
+          , c = [];
+        for (let h = 1; h < a.length; h++) {
+            const G = Math.round((a[h] - a[h - 1]) / 864e5);
+            c.push(G)
+        }
+        if (c.length >= 2) {
+            const h = c.reduce( (T, R) => T + R, 0) / c.length;
+            return c.every(T => Math.abs(T - h) <= Math.max(2, h * .3)) ? `Appears every ~${Math.round(h)} days` : `Inconsistent pattern (avg: ${Math.round(h)} days)`
+        }
+        return `Seen ${n.length} times`
+    }
+      , I = () => {
+        switch (t.type) {
+        case "gear_stock":
+            return e.jsxs("svg", {
+                xmlns: "http://www.w3.org/2000/svg",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                className: "w-5 h-5",
+                children: [e.jsx("circle", {
+                    cx: "12",
+                    cy: "12",
+                    r: "3"
+                }), e.jsx("path", {
+                    d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                })]
+            });
+        case "seeds_stock":
+            return e.jsx("svg", {
+                xmlns: "http://www.w3.org/2000/svg",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                className: "w-5 h-5",
+                children: e.jsx("path", {
+                    d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                })
+            });
+        case "egg_stock":
+            return e.jsx("svg", {
+                xmlns: "http://www.w3.org/2000/svg",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                className: "w-5 h-5",
+                children: e.jsx("path", {
+                    d: "M12 2C6 2 2 12 2 18s4 4 10 4 10 2 10-4-4-16-10-16z"
+                })
+            });
+        default:
+            return e.jsx("div", {
+                className: "w-5 h-5"
+            })
+        }
+    }
+    ;
+    return e.jsxs("div", {
+        className: "space-y-6",
+        children: [e.jsxs("div", {
+            className: "flex items-center gap-4",
+            children: [e.jsx("div", {
+                className: "w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-gray-700/30 to-gray-900/30 p-0.5",
+                children: e.jsx("div", {
+                    className: `w-full h-full ${r.bgLight} rounded-[6px] flex items-center justify-center p-2`,
+                    children: I()
+                })
+            }), e.jsxs("div", {
+                children: [e.jsx("h3", {
+                    className: "text-xl font-bold text-white",
+                    children: t.display_name
+                }), e.jsxs("div", {
+                    className: "flex items-center gap-2 text-sm text-gray-400 mt-1",
+                    children: [e.jsx("span", {
+                        className: r.color,
+                        children: t.type.replace("_", " ")
+                    }), t.type !== "weather" && e.jsxs(e.Fragment, {
+                        children: [e.jsx("span", {
+                            className: "mx-1",
+                            children: "•"
+                        }), e.jsxs("span", {
+                            className: `${r.color} font-mono`,
+                            children: [t.price, " ", ce("growagarden"), t.value_per_kg ? "/kg" : ""]
+                        })]
+                    }), t.seed_price && e.jsxs(e.Fragment, {
+                        children: [e.jsx("span", {
+                            className: "mx-1",
+                            children: "•"
+                        }), e.jsxs("span", {
+                            className: `${r.color} font-mono`,
+                            children: ["Seeds: ", t.seed_price, " ", ce("growagarden")]
+                        })]
+                    })]
+                })]
+            })]
+        }), e.jsxs("div", {
+            className: "space-y-2",
+            children: [e.jsx("div", {
+                className: "flex items-center justify-between",
+                children: e.jsx("h4", {
+                    className: "text-lg font-semibold text-gray-300",
+                    children: "Last Appearance"
+                })
+            }), e.jsx("div", {
+                className: O("bg-gray-800/50 rounded-lg p-3 border", r.border),
+                children: e.jsxs("div", {
+                    className: "flex items-start gap-3",
+                    children: [e.jsx(Pe, {
+                        className: `w-5 h-5 ${r.color} mt-0.5`
+                    }), e.jsxs("div", {
+                        children: [e.jsx("div", {
+                            className: "text-white",
+                            children: j(t.date_added_to_stock)
+                        }), e.jsxs("div", {
+                            className: "text-sm text-gray-400",
+                            children: ["Stock type: ", e.jsx("span", {
+                                className: r.color,
+                                children: t.type.replace("_", " ")
+                            }), t.type !== "weather" && e.jsxs("span", {
+                                className: "ml-2",
+                                children: ["Price: ", e.jsxs("span", {
+                                    className: r.color,
+                                    children: [t.price, " ", ce("growagarden")]
+                                })]
+                            })]
+                        })]
+                    })]
+                })
+            })]
+        }), e.jsxs("div", {
+            className: "space-y-2",
+            children: [e.jsx("div", {
+                className: "flex items-center justify-between",
+                children: e.jsx("h4", {
+                    className: "text-lg font-semibold text-gray-300",
+                    children: "Recent Appearances"
+                })
+            }), e.jsxs("div", {
+                className: O("bg-gray-800/50 rounded-lg divide-y divide-gray-700/50", r.border),
+                children: [n.slice(1, 4).map( (a, c) => e.jsx("div", {
+                    className: "p-3",
+                    children: e.jsxs("div", {
+                        className: "flex items-start gap-3",
+                        children: [e.jsx(Pe, {
+                            className: `w-4 h-4 ${r.color} mt-0.5`
+                        }), e.jsxs("div", {
+                            children: [e.jsx("div", {
+                                className: "text-white text-sm",
+                                children: j(a.date_added_to_stock)
+                            }), e.jsxs("div", {
+                                className: "text-xs text-gray-400",
+                                children: ["Stock type: ", e.jsx("span", {
+                                    className: r.color,
+                                    children: a.type.replace("_", " ")
+                                })]
+                            })]
+                        })]
+                    })
+                }, c)), n.length <= 1 && e.jsx("div", {
+                    className: "p-3 text-center text-gray-500",
+                    children: "No earlier appearances found"
+                })]
+            })]
+        }), e.jsxs("div", {
+            className: "space-y-2",
+            children: [e.jsxs("div", {
+                className: "flex items-center justify-between",
+                children: [e.jsx("h4", {
+                    className: "text-lg font-semibold text-gray-300",
+                    children: o ? "Complete Appearance History" : "7-Day Appearance History"
+                }), e.jsxs(M, {
+                    variant: "outline",
+                    size: "sm",
+                    onClick: k,
+                    className: O("bg-gray-800/70 hover:bg-gray-800 relative group", r.border, r.color),
+                    children: [e.jsx(ve, {
+                        className: "h-4 w-4 mr-1"
+                    }), o ? "7-Day View" : "All History"]
+                })]
+            }), e.jsx("div", {
+                className: O("bg-gray-800/50 rounded-lg p-2 sm:p-4 border h-48 sm:h-56 md:h-64", r.border),
+                children: l.length > 0 ? e.jsx(Lt, {
+                    width: "100%",
+                    height: "100%",
+                    children: e.jsxs(At, {
+                        data: l,
+                        margin: {
+                            top: 10,
+                            right: 10,
+                            left: -15,
+                            bottom: 20
+                        },
+                        children: [e.jsx($t, {
+                            strokeDasharray: "3 3",
+                            stroke: "#2d3748",
+                            vertical: !1
+                        }), e.jsx(Wt, {
+                            dataKey: "date",
+                            tick: {
+                                fill: "#a0aec0",
+                                fontSize: 10
+                            },
+                            tickFormatter: x,
+                            stroke: "#4a5568",
+                            height: 30,
+                            interval: f,
+                            angle: o && l.length > 20 ? -45 : 0,
+                            textAnchor: o && l.length > 20 ? "end" : "middle"
+                        }), e.jsx(Pt, {
+                            tick: {
+                                fill: "#a0aec0",
+                                fontSize: 10
+                            },
+                            stroke: "#4a5568",
+                            allowDecimals: !1,
+                            width: 30
+                        }), e.jsx(Rt, {
+                            content: ({active: a, payload: c, label: h}) => a && c && c.length ? e.jsxs("div", {
+                                className: O("bg-gray-900 p-2 border rounded shadow-lg", r.border),
+                                children: [e.jsx("p", {
+                                    className: "text-gray-300 text-xs sm:text-sm",
+                                    children: x(h)
+                                }), e.jsx("p", {
+                                    className: `${r.color} font-semibold text-xs sm:text-sm`,
+                                    children: `${c[0].value} time${c[0].value !== 1 ? "s" : ""}`
+                                })]
+                            }) : null
+                        }), e.jsx(Vt, {
+                            dataKey: "count",
+                            fill: `url(#gradient-${t.type})`,
+                            radius: [4, 4, 0, 0],
+                            barSize: v(),
+                            animationDuration: 300
+                        }), e.jsx("defs", {
+                            children: e.jsxs("linearGradient", {
+                                id: `gradient-${t.type}`,
+                                x1: "0",
+                                y1: "0",
+                                x2: "0",
+                                y2: "1",
+                                children: [e.jsx("stop", {
+                                    offset: "0%",
+                                    stopColor: r.gradient.start,
+                                    stopOpacity: .8
+                                }), e.jsx("stop", {
+                                    offset: "100%",
+                                    stopColor: r.gradient.end,
+                                    stopOpacity: .8
+                                })]
+                            })
+                        })]
+                    })
+                }) : e.jsx(vt, {
+                    message: "No appearance history found"
+                })
+            })]
+        }), e.jsxs("div", {
+            className: "grid md:grid-cols-2 gap-3",
+            children: [e.jsxs(F, {
+                className: O("p-4 bg-gray-900/50 border", r.border),
+                children: [e.jsxs("div", {
+                    className: "flex items-center gap-2 text-sm text-gray-400 mb-2",
+                    children: [e.jsx(Nt, {
+                        className: "h-3.5 w-3.5"
+                    }), e.jsx("span", {
+                        children: "First Appearance"
+                    })]
+                }), n.length > 0 ? e.jsxs(e.Fragment, {
+                    children: [e.jsx("p", {
+                        className: "text-white text-sm",
+                        children: j([...n].sort( (a, c) => new Date(a.date_added_to_stock).getTime() - new Date(c.date_added_to_stock).getTime())[0].date_added_to_stock)
+                    }), e.jsx("p", {
+                        className: `text-xs ${r.color} mt-1`,
+                        children: ( () => {
+                            const a = [...n].sort( (T, R) => new Date(T.date_added_to_stock).getTime() - new Date(R.date_added_to_stock).getTime())
+                              , c = new Date(a[0].date_added_to_stock);
+                            return `${Math.floor((new Date().getTime() - c.getTime()) / (1e3 * 60 * 60 * 24))} days ago`
+                        }
+                        )()
+                    })]
+                }) : e.jsx("p", {
+                    className: "text-gray-500 text-sm",
+                    children: "No data available"
+                })]
+            }), e.jsxs(F, {
+                className: O("p-4 bg-gray-900/50 border", r.border),
+                children: [e.jsxs("div", {
+                    className: "flex items-center gap-2 text-sm text-gray-400 mb-2",
+                    children: [e.jsx(Pe, {
+                        className: "h-3.5 w-3.5"
+                    }), e.jsx("span", {
+                        children: "Total Appearances"
+                    })]
+                }), e.jsxs("p", {
+                    className: "text-white",
+                    children: [_, " time", _ !== 1 ? "s" : ""]
+                }), _ > 1 && e.jsx("p", {
+                    className: `text-xs ${r.color} mt-1`,
+                    children: m()
+                })]
+            })]
+        }), e.jsxs("div", {
+            className: "space-y-2",
+            children: [e.jsx("div", {
+                className: "flex items-center justify-between",
+                children: e.jsx("h4", {
+                    className: "text-lg font-semibold text-gray-300",
+                    children: "Complete History"
+                })
+            }), e.jsx("div", {
+                className: O("bg-gray-800/50 rounded-lg p-4 border", r.border),
+                children: n.length > 0 ? e.jsx("div", {
+                    className: "space-y-3 max-h-80 overflow-y-auto pr-2",
+                    children: n.map( (a, c) => e.jsxs("div", {
+                        className: "flex items-start gap-3 p-3 bg-gray-900/30 rounded-lg",
+                        children: [e.jsx(Pe, {
+                            className: `w-4 h-4 ${r.color} mt-0.5`
+                        }), e.jsxs("div", {
+                            className: "flex-1",
+                            children: [e.jsx("div", {
+                                className: "text-white text-sm",
+                                children: j(a.date_added_to_stock)
+                            }), e.jsxs("div", {
+                                className: "flex justify-between items-center mt-1",
+                                children: [e.jsxs("div", {
+                                    className: "text-xs text-gray-400",
+                                    children: ["Stock type: ", e.jsx("span", {
+                                        className: r.color,
+                                        children: a.type.replace("_", " ")
+                                    })]
+                                }), t.type !== "weather" && e.jsxs("div", {
+                                    className: `${r.color} font-mono text-sm`,
+                                    children: [a.price, " ", ce("growagarden"), a.value_per_kg ? "/kg" : "", a.seed_price ? ` (Seeds: ${a.seed_price})` : ""]
+                                })]
+                            })]
+                        })]
+                    }, c))
+                }) : e.jsx("div", {
+                    className: "text-center py-10 text-gray-500",
+                    children: e.jsx("p", {
+                        children: "No history available"
+                    })
+                })
+            })]
+        })]
+    })
+}
+  , Jt = ({searchQuery: t, setSearchQuery: s}) => e.jsxs("div", {
+    className: "relative rounded-lg border border-blue-500/30 bg-gray-900/50 focus-within:ring-1 focus-within:ring-blue-500/50 flex items-center p-2 my-4",
+    children: [e.jsx(St, {
+        className: "h-4 w-4 text-gray-500 mx-2"
+    }), e.jsx(mt, {
+        type: "text",
+        placeholder: "Search by item name...",
+        value: t,
+        onChange: o => s(o.target.value),
+        className: "flex-1 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-200 placeholder:text-gray-500"
+    }), t && e.jsxs(M, {
+        variant: "ghost",
+        size: "icon",
+        onClick: () => s(""),
+        className: "h-7 w-7 rounded-full text-gray-500 hover:text-gray-300 hover:bg-gray-800",
+        children: [e.jsx(Ct, {
+            className: "h-4 w-4"
+        }), e.jsx("span", {
+            className: "sr-only",
+            children: "Clear search"
+        })]
+    })]
+})
+  , Qt = ({item: t, isSelected: s, onSelect: o}) => {
+    const d = (r => {
+        switch (r) {
+        case "gear_stock":
+            return {
+                selectedBg: "bg-blue-900/30",
+                selectedBorder: "border-blue-500/50",
+                hoverBg: "hover:bg-blue-900/20",
+                hoverBorder: "hover:border-blue-500/30",
+                iconClass: "text-blue-400"
+            };
+        case "seeds_stock":
+            return {
+                selectedBg: "bg-green-900/30",
+                selectedBorder: "border-green-500/50",
+                hoverBg: "hover:bg-green-900/20",
+                hoverBorder: "hover:border-green-500/30",
+                iconClass: "text-green-400"
+            };
+        case "egg_stock":
+            return {
+                selectedBg: "bg-yellow-900/30",
+                selectedBorder: "border-yellow-500/50",
+                hoverBg: "hover:bg-yellow-900/20",
+                hoverBorder: "hover:border-yellow-500/30",
+                iconClass: "text-yellow-400"
+            };
+        case "weather":
+            return {
+                selectedBg: "bg-cyan-900/30",
+                selectedBorder: "border-cyan-500/50",
+                hoverBg: "hover:bg-cyan-900/20",
+                hoverBorder: "hover:border-cyan-500/30",
+                iconClass: "text-cyan-400"
+            };
+        default:
+            return {
+                selectedBg: "bg-gray-800",
+                selectedBorder: "border-gray-600",
+                hoverBg: "hover:bg-gray-800/50",
+                hoverBorder: "hover:border-gray-600/50",
+                iconClass: "text-gray-400"
+            }
+        }
+    }
+    )(t.type);
+    return e.jsxs("div", {
+        className: O("flex items-center justify-between p-3 border border-gray-700/50 rounded-lg cursor-pointer transition-all", s ? `${d.selectedBg} ${d.selectedBorder}` : `bg-gray-800/50 ${d.hoverBg} ${d.hoverBorder}`),
+        onClick: () => o(t),
+        children: [e.jsxs("div", {
+            className: "flex items-center gap-3",
+            children: [e.jsx("div", {
+                className: `w-10 h-10 rounded-lg overflow-hidden bg-gradient-to-br ${s ? "from-gray-700 to-gray-800" : "from-gray-800 to-gray-900"} p-0.5 flex items-center justify-center`,
+                children: t.image_url ? e.jsx("img", {
+                    src: t.image_url,
+                    alt: `${t.display_name} ${t.type.replace("_", " ")} icon in Roblox Grow a Garden`,
+                    title: `${t.display_name} - ${t.type !== "weather" ? `${t.price} ${ce("growagarden")} -` : ""} Grow a Garden`,
+                    className: "w-full h-full object-contain",
+                    onError: r => {
+                        r.currentTarget.style.display = "none"
+                    }
+                }) : e.jsxs(e.Fragment, {
+                    children: [t.type === "gear_stock" && e.jsxs("svg", {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        strokeWidth: "2",
+                        strokeLinecap: "round",
+                        strokeLinejoin: "round",
+                        className: `w-6 h-6 ${d.iconClass}`,
+                        children: [e.jsx("circle", {
+                            cx: "12",
+                            cy: "12",
+                            r: "3"
+                        }), e.jsx("path", {
+                            d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                        })]
+                    }), t.type === "seeds_stock" && e.jsx("svg", {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        strokeWidth: "2",
+                        strokeLinecap: "round",
+                        strokeLinejoin: "round",
+                        className: `w-6 h-6 ${d.iconClass}`,
+                        children: e.jsx("path", {
+                            d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                        })
+                    }), t.type === "egg_stock" && e.jsx("svg", {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        strokeWidth: "2",
+                        strokeLinecap: "round",
+                        strokeLinejoin: "round",
+                        className: `w-6 h-6 ${d.iconClass}`,
+                        children: e.jsx("path", {
+                            d: "M12 2C6 2 2 12 2 18s4 4 10 4 10 2 10-4-4-16-10-16z"
+                        })
+                    }), t.type === "weather" && e.jsx("svg", {
+                        xmlns: "http://www.w3.org/2000/svg",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        strokeWidth: "2",
+                        strokeLinecap: "round",
+                        strokeLinejoin: "round",
+                        className: `w-6 h-6 ${d.iconClass}`,
+                        children: e.jsx("path", {
+                            d: "M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"
+                        })
+                    })]
+                })
+            }), e.jsxs("div", {
+                className: "flex flex-col",
+                children: [e.jsx("span", {
+                    className: `text-sm font-medium ${s ? "text-white" : "text-gray-300"}`,
+                    children: t.display_name
+                }), e.jsx("span", {
+                    className: "text-xs text-gray-500",
+                    children: Ft(t.date_added_to_stock)
+                })]
+            })]
+        }), t.type !== "weather" && e.jsx("div", {
+            className: "text-right",
+            children: e.jsxs("div", {
+                className: "text-sm font-mono text-gray-400",
+                children: [t.price, " ", e.jsx("span", {
+                    className: "text-xs",
+                    children: ce("growagarden").toLowerCase()
+                })]
+            })
+        })]
+    })
+}
+  , Xt = ({historyItems: t, searchQuery: s, selectedItem: o, onSelectItem: u, loading: d}) => {
+    const r = t.filter(n => n.display_name.toLowerCase().includes(s.toLowerCase()) || n.item_id.toLowerCase().includes(s.toLowerCase()));
+    return d ? e.jsxs("div", {
+        className: "flex flex-col items-center justify-center py-12",
+        children: [e.jsx(de, {
+            className: "h-10 w-10 text-blue-400 animate-spin mb-4"
+        }), e.jsx("p", {
+            className: "text-gray-400",
+            children: "Loading history data..."
+        })]
+    }) : r.length === 0 ? e.jsx("div", {
+        className: "flex flex-col items-center justify-center py-12 text-center",
+        children: s ? e.jsxs(e.Fragment, {
+            children: [e.jsxs("p", {
+                className: "text-gray-400 mb-2",
+                children: ['No items match "', s, '"']
+            }), e.jsx("p", {
+                className: "text-gray-500 text-sm",
+                children: "Try a different search term"
+            })]
+        }) : e.jsxs(e.Fragment, {
+            children: [e.jsx("p", {
+                className: "text-gray-400 mb-2",
+                children: "No history data available"
+            }), e.jsx("p", {
+                className: "text-gray-500 text-sm",
+                children: "Check back after more stock updates"
+            })]
+        })
+    }) : e.jsxs("div", {
+        className: "space-y-2",
+        children: [s && e.jsxs("p", {
+            className: "text-xs text-gray-500 mb-2",
+            children: ["Found ", r.length, ' items matching "', s, '"']
+        }), r.map(n => e.jsx(Qt, {
+            item: n,
+            isSelected: (o == null ? void 0 : o.id) === n.id,
+            onSelect: u
+        }, n.id))]
+    })
+}
+  , Zt = ({message: t="Select an item to view details", className: s}) => e.jsxs("div", {
+    className: O("flex flex-col items-center justify-center py-10 text-center", s),
+    children: [e.jsx("div", {
+        className: "w-16 h-16 rounded-full bg-gray-800/80 flex items-center justify-center mb-4",
+        children: e.jsx(Mt, {
+            className: "h-8 w-8 text-gray-500"
+        })
+    }), e.jsx("p", {
+        className: "text-gray-400 text-sm",
+        children: t
+    })]
+})
+  , Xe = ({open: t, onOpenChange: s, title: o, stockType: u}) => {
+    const [d,r] = i.useState("")
+      , [n,l] = i.useState(null)
+      , [f,j] = i.useState([])
+      , [x,k] = i.useState([])
+      , [v,_] = i.useState(!0)
+      , {toast: m} = ht()
+      , a = ( () => {
+        switch (u) {
+        case "gear_stock":
+            return {
+                title: "text-blue-400",
+                border: "border-blue-500/30"
+            };
+        case "seeds_stock":
+            return {
+                title: "text-green-400",
+                border: "border-green-500/30"
+            };
+        case "egg_stock":
+            return {
+                title: "text-yellow-400",
+                border: "border-yellow-500/30"
+            };
+        case "weather":
+            return {
+                title: "text-cyan-400",
+                border: "border-cyan-500/30"
+            };
+        case "bloodmoonshop":
+            return {
+                title: "text-purple-400",
+                border: "border-purple-500/30"
+            };
+        default:
+            return {
+                title: "text-gray-400",
+                border: "border-gray-600/30"
+            }
+        }
+    }
+    )();
+    i.useEffect( () => {
+        t && (_(!0),
+        qt(u).then(h => {
+            j(h),
+            _(!1),
+            l(null)
+        }
+        ).catch(h => {
+            p.error("Error fetching history:", h),
+            m({
+                title: "Error",
+                description: "Failed to load item history data",
+                variant: "destructive"
+            }),
+            _(!1)
+        }
+        ))
+    }
+    , [t, u, m]),
+    i.useEffect( () => {
+        if (f.length > 0) {
+            const h = new Map;
+            f.forEach(T => {
+                (!h.has(T.item_id) || new Date(T.date_added_to_stock) > new Date(h.get(T.item_id).date_added_to_stock)) && h.set(T.item_id, T)
+            }
+            );
+            const G = Array.from(h.values());
+            G.sort( (T, R) => T.display_name.localeCompare(R.display_name)),
+            p.debug(`Combined ${f.length} history items into ${G.length} unique items`),
+            k(G)
+        } else
+            k([])
+    }
+    , [f]);
+    const c = h => {
+        l(h)
+    }
+    ;
+    return e.jsx(Et, {
+        open: t,
+        onOpenChange: s,
+        children: e.jsx(Dt, {
+            className: O("max-w-[95vw] md:max-w-4xl max-h-[85vh] overflow-hidden flex flex-col bg-gray-950 border-gray-800 text-white", a.border, n ? "lg:flex-col" : ""),
+            children: n ? e.jsxs(e.Fragment, {
+                children: [e.jsxs("div", {
+                    className: "flex items-center justify-between gap-2 mb-4",
+                    children: [e.jsxs(M, {
+                        variant: "ghost",
+                        size: "sm",
+                        className: `${a.title} hover:text-white hover:bg-gray-900/50 gap-1`,
+                        onClick: () => l(null),
+                        children: [e.jsx(Ie, {
+                            className: "h-4 w-4"
+                        }), "Back to List"]
+                    }), e.jsx(M, {
+                        variant: "outline",
+                        size: "sm",
+                        className: "text-gray-300 hover:text-white hover:bg-gray-900/50 min-h-[40px] px-4",
+                        onClick: () => s(!1),
+                        children: "Close"
+                    })]
+                }), e.jsx("div", {
+                    className: "flex-1 overflow-y-auto pr-2 pb-4",
+                    children: e.jsx(Kt, {
+                        item: n,
+                        allHistoryItems: f
+                    })
+                })]
+            }) : e.jsxs(e.Fragment, {
+                children: [e.jsxs("div", {
+                    className: "flex items-center justify-between border-b border-gray-700/50 pb-4",
+                    children: [e.jsxs(Bt, {
+                        children: [e.jsxs(Ut, {
+                            className: "text-xl md:text-2xl font-bold flex gap-2 items-center",
+                            children: [e.jsx("span", {
+                                className: a.title,
+                                children: o
+                            }), " History"]
+                        }), e.jsxs(zt, {
+                            className: "text-gray-400",
+                            children: ["View when items were last available in ", u.replace("_", " ")]
+                        })]
+                    }), e.jsx(M, {
+                        variant: "outline",
+                        size: "sm",
+                        className: "text-gray-300 hover:text-white hover:bg-gray-900/50 min-h-[40px] px-4",
+                        onClick: () => s(!1),
+                        children: "Close"
+                    })]
+                }), e.jsx(Jt, {
+                    searchQuery: d,
+                    setSearchQuery: r
+                }), e.jsxs("div", {
+                    className: "flex flex-col lg:flex-row flex-1 gap-4 overflow-hidden",
+                    children: [e.jsx("div", {
+                        className: "w-full lg:w-1/2 overflow-y-auto pr-2",
+                        children: e.jsx(Xt, {
+                            historyItems: x,
+                            searchQuery: d,
+                            selectedItem: n,
+                            onSelectItem: c,
+                            loading: v
+                        })
+                    }), e.jsxs("div", {
+                        className: "w-full lg:w-1/2 overflow-y-auto bg-gray-900/50 rounded-lg p-4 border border-gray-700/30 mt-2 lg:mt-0",
+                        children: [e.jsx(Zt, {
+                            message: "Select an item to view details",
+                            className: "h-full"
+                        }), e.jsx("p", {
+                            className: "text-center text-gray-500 max-w-xs mx-auto -mt-2",
+                            children: "Click on any item from the list to see its appearance history and price trends"
+                        })]
+                    })]
+                })]
+            })
+        })
+    })
+}
+  , ge = {
+    seeds_stock: [{
+        item_id: "carrot",
+        display_name: "Carrot",
+        price: 10,
+        image_url: "https://images.arcaiuz.com/growagarden/carrot.png"
+    }, {
+        item_id: "strawberry",
+        display_name: "Strawberry",
+        price: 50,
+        image_url: "https://images.arcaiuz.com/growagarden/strawberry.jpg"
+    }, {
+        item_id: "blueberry",
+        display_name: "Blueberry",
+        price: 400,
+        image_url: "https://images.arcaiuz.com/growagarden/blueberry.webp"
+    }, {
+        item_id: "tomato",
+        display_name: "Tomato",
+        price: 800,
+        image_url: "https://images.arcaiuz.com/growagarden/tomato.jpg"
+    }, {
+        item_id: "orange_tulip",
+        display_name: "Orange Tulip",
+        price: 600,
+        image_url: "https://images.arcaiuz.com/growagarden/orange_tulips.jpg"
+    }, {
+        item_id: "corn",
+        display_name: "Corn",
+        price: 1300,
+        image_url: "https://images.arcaiuz.com/growagarden/corn.webp"
+    }, {
+        item_id: "daffodil",
+        display_name: "Daffodil",
+        price: 1e3,
+        image_url: "https://images.arcaiuz.com/growagarden/daffodil.png"
+    }, {
+        item_id: "watermelon",
+        display_name: "Watermelon",
+        price: 2500,
+        image_url: "https://images.arcaiuz.com/growagarden/watermelon.webp"
+    }, {
+        item_id: "pumpkin",
+        display_name: "Pumpkin ",
+        price: 3e3,
+        image_url: "https://images.arcaiuz.com/growagarden/pumpkin.png"
+    }, {
+        item_id: "apple",
+        display_name: "Apple",
+        price: 3250,
+        image_url: "https://images.arcaiuz.com/growagarden/apple.webp"
+    }, {
+        item_id: "bamboo",
+        display_name: "Bamboo",
+        price: 4e3,
+        image_url: "https://images.arcaiuz.com/growagarden/bamboo.png"
+    }, {
+        item_id: "coconut",
+        display_name: "Coconut",
+        price: 6e3,
+        image_url: "https://images.arcaiuz.com/growagarden/coconut.png"
+    }, {
+        item_id: "mango",
+        display_name: "Mango",
+        price: 6500,
+        image_url: "https://images.arcaiuz.com/growagarden/mango.png"
+    }, {
+        item_id: "chocolate_carrot",
+        display_name: "Chocolate Carrot",
+        price: 1e4,
+        image_url: "https://images.arcaiuz.com/growagarden/chocolate_carrot.png"
+    }, {
+        item_id: "cactus",
+        display_name: "Cactus",
+        price: 15e3,
+        image_url: "https://images.arcaiuz.com/growagarden/cactus.png"
+    }, {
+        item_id: "beanstalk",
+        display_name: "Beanstalk",
+        price: 18e3,
+        image_url: "https://images.arcaiuz.com/growagarden/beanstalk"
+    }, {
+        item_id: "dragon_fruit",
+        display_name: "Dragon Fruit",
+        price: 5e4,
+        image_url: "https://images.arcaiuz.com/growagarden/dragonfruit.png"
+    }, {
+        item_id: "mushroom",
+        display_name: "Mushroom",
+        price: 15e4,
+        image_url: "https://images.arcaiuz.com/growagarden/mushrooms.webp"
+    }, {
+        item_id: "grape",
+        display_name: "Grape",
+        price: 85e4,
+        image_url: "https://images.arcaiuz.com/growagarden/grape.png"
+    }, {
+        item_id: "pepper",
+        display_name: "Pepper",
+        price: 1e6,
+        image_url: "https://images.arcaiuz.com/growagarden/pepper.webp"
+    }],
+    gear_stock: [{
+        item_id: "garden_gloves",
+        display_name: "Garden Gloves",
+        price: 120
+    }, {
+        item_id: "fertilizer",
+        display_name: "Fertilizer",
+        price: 150
+    }, {
+        item_id: "basic_sprinkler",
+        display_name: "Basic Sprinkler",
+        price: 2e4,
+        image_url: "https://images.arcaiuz.com/growagarden/basic_sprinkler.png"
+    }, {
+        item_id: "advanced_sprinkler",
+        display_name: "Advanced Sprinkler",
+        price: 5e4,
+        image_url: "https://images.arcaiuz.com/growagarden/advanced_sprinkler.png"
+    }, {
+        item_id: "watering_can",
+        display_name: "Watering Can",
+        price: 5e4,
+        image_url: "https://images.arcaiuz.com/growagarden/watering_can.png"
+    }, {
+        item_id: "recall_wrench",
+        display_name: "Recall Wrench",
+        price: 75e3,
+        image_url: "https://images.arcaiuz.com/growagarden/recall_wrench"
+    }, {
+        item_id: "godly_sprinkler",
+        display_name: "Godly Sprinkler",
+        price: 1e5,
+        image_url: "https://images.arcaiuz.com/growagarden/godly_sprinkler.png"
+    }, {
+        item_id: "trowel",
+        display_name: "Trowel",
+        price: 1e5,
+        image_url: "https://images.arcaiuz.com/growagarden/trowel.png"
+    }, {
+        item_id: "favorite_tool",
+        display_name: "Favorite Tool",
+        price: 2e5,
+        image_url: "https://images.arcaiuz.com/growagarden/favorite_tool"
+    }, {
+        item_id: "chocolate_sprinkler",
+        display_name: "Chocolate Sprinkler",
+        price: 5e5,
+        image_url: "https://images.arcaiuz.com/growagarden/chocolate_sprinkler.png"
+    }, {
+        item_id: "lightning_rod",
+        display_name: "Lightning Rod",
+        price: 1e6,
+        image_url: "https://images.arcaiuz.com/growagarden/lightning_rod.png"
+    }, {
+        item_id: "master_sprinkler",
+        display_name: "Master Sprinkler",
+        price: 1e7,
+        image_url: "https://images.arcaiuz.com/growagarden/master_sprinkler.png"
+    }],
+    egg_stock: [{
+        item_id: "common_egg",
+        display_name: "Common Egg",
+        price: 5e4,
+        image_url: "https://images.arcaiuz.com/growagarden/common_egg.png"
+    }, {
+        item_id: "uncommon_egg",
+        display_name: "Uncommon Egg",
+        price: 15e4,
+        image_url: "https://images.arcaiuz.com/growagarden/uncommon_egg.png"
+    }, {
+        item_id: "rare_egg",
+        display_name: "Rare Egg",
+        price: 6e5,
+        image_url: "https://images.arcaiuz.com/growagarden/rare_egg.png"
+    }, {
+        item_id: "legendary_egg",
+        display_name: "Legendary Egg",
+        price: 3e6,
+        image_url: "https://images.arcaiuz.com/growagarden/legendary_egg.png"
+    }, {
+        item_id: "exotic_egg",
+        display_name: "Exotic Egg",
+        price: 0
+    }, {
+        item_id: "bug_egg",
+        display_name: "Bug Egg",
+        price: 3e6,
+        image_url: "https://images.arcaiuz.com/growagarden/bug_egg.png"
+    }]
+};
+[...ge.gear_stock.map(t => ({
+    id: t.item_id,
+    name: t.display_name,
+    type: "gear_stock",
+    defaultPrice: t.price,
+    image_url: t.image_url,
+    description: `${t.display_name} tool`,
+    rarity: Ze(t.price)
+})), ...ge.seeds_stock.map(t => ({
+    id: t.item_id,
+    name: t.display_name,
+    type: "seeds_stock",
+    defaultPrice: t.price,
+    image_url: t.image_url,
+    description: `${t.display_name} seeds`,
+    rarity: Ze(t.price)
+})), ...ge.egg_stock.map(t => ({
+    id: t.item_id,
+    name: t.display_name,
+    type: "egg_stock",
+    defaultPrice: t.price,
+    image_url: t.image_url,
+    description: `${t.display_name}`,
+    rarity: Ze(t.price)
+}))];
+function Ze(t) {
+    return t >= 5e5 ? "legendary" : t >= 1e5 ? "epic" : t >= 5e4 ? "rare" : t >= 1e4 ? "uncommon" : "common"
+}
+function me(t) {
+    for (const s in ge) {
+        const o = ge[s].find(u => u.item_id === t);
+        if (o)
+            return o.price
+    }
+}
+function es(t) {
+    for (const s in ge) {
+        const o = ge[s].find(u => u.item_id === t);
+        if (o)
+            return o.image_url
+    }
+}
+const gt = Object.freeze(Object.defineProperty({
+    __proto__: null,
+    GARDEN_STOCK_ITEMS: ge,
+    getItemImageUrl: es,
+    getItemPriceInSheckles: me
+}, Symbol.toStringTag, {
+    value: "Module"
+}));
+function ts() {
+    const [t,s] = i.useState([])
+      , [o,u] = i.useState([])
+      , [d,r] = i.useState([])
+      , [n,l] = i.useState([])
+      , [f,j] = i.useState([])
+      , [x,k] = i.useState([])
+      , [v,_] = i.useState(!1)
+      , [m,I] = i.useState(!1)
+      , [a,c] = i.useState(!1)
+      , [h,G] = i.useState(!1)
+      , [T,R] = i.useState(!1)
+      , [he,Oe] = i.useState(!1)
+      , [re,ke] = i.useState(!1)
+      , [Y,ae] = i.useState(!1)
+      , [oe,pe] = i.useState(!1)
+      , [_e,De] = i.useState(!1)
+      , [Fe,Ne] = i.useState(!1)
+      , [qe,Se] = i.useState(!1)
+      , [U,Be] = i.useState(!0)
+      , [K,Ue] = i.useState(!0)
+      , [ue,J] = i.useState(!1)
+      , [Q,ne] = i.useState(0)
+      , [z,xe] = i.useState(0)
+      , [X,Ce] = i.useState(0)
+      , [et,we] = i.useState(!1)
+      , [ze,Me] = i.useState(!1)
+      , [Z,Ye] = i.useState(!1)
+      , Ke = i.useCallback( () => {
+        we(N => !N)
+    }
+    , [])
+      , Le = i.useCallback( () => {
+        Me(N => !N)
+    }
+    , [])
+      , Ae = i.useCallback( () => {
+        Ye(N => !N)
+    }
+    , [])
+      , g = i.useRef(0)
+      , [y,L] = i.useState(null)
+      , $ = i.useCallback(async () => {
+        var N, V, q;
+        J(!0),
+        L(null);
+        try {
+            const w = await it();
+            t.length > 0 && l(t),
+            o.length > 0 && j(o),
+            d.length > 0 && k(d);
+            const E = w.gear_stock.map(H => ({
+                ...H,
+                price: me(H.item_id) || H.price
+            }))
+              , b = w.seeds_stock.map(H => ({
+                ...H,
+                price: me(H.item_id) || H.price
+            }))
+              , A = w.egg_stock.map(H => ({
+                ...H,
+                price: me(H.item_id) || H.price
+            }));
+            s(E),
+            u(b),
+            r(A),
+            _(w.gear_stock.length > 0),
+            I(w.seeds_stock.length > 0),
+            c(w.egg_stock.length > 0),
+            ne(P("gear_stock")),
+            xe(P("seeds_stock")),
+            Ce(P("egg_stock"));
+            const S = w.gear_stock.length === 1 && w.gear_stock[0].item_id === "loading_gear"
+              , D = w.seeds_stock.length === 1 && w.seeds_stock[0].item_id === "loading_seeds"
+              , B = w.egg_stock.length === 1 && w.egg_stock[0].item_id === "loading_egg";
+            console.log("🌱 [Garden Stock] Checking updating state for stock types:"),
+            console.log(`- Has gear placeholder: ${S}`),
+            console.log(`- Has seeds placeholder: ${D}`),
+            console.log(`- Has egg placeholder: ${B}`);
+            const C = S || Je("gear_stock", w.gear_stock.length > 0 && !S ? new Date(w.gear_stock[0].date) : void 0)
+              , W = D || Je("seeds_stock", w.seeds_stock.length > 0 && !D ? new Date(w.seeds_stock[0].date) : void 0)
+              , $e = B || Je("egg_stock", w.egg_stock.length > 0 && !B ? new Date(w.egg_stock[0].date) : void 0);
+            p.debug("Stock updating states:", {
+                gearIsUpdating: C,
+                seedsIsUpdating: W,
+                eggIsUpdating: $e,
+                gearItemCount: E.length,
+                seedsItemCount: b.length,
+                eggItemCount: A.length,
+                gearPriceExample: (N = E[0]) == null ? void 0 : N.price,
+                seedsPriceExample: (V = b[0]) == null ? void 0 : V.price,
+                eggPriceExample: (q = A[0]) == null ? void 0 : q.price,
+                hasPlaceholderGear: S,
+                hasPlaceholderSeeds: D,
+                hasPlaceholderEggs: B,
+                gearNextUpdate: P("gear_stock"),
+                seedsNextUpdate: P("seeds_stock"),
+                eggNextUpdate: P("egg_stock")
+            }),
+            console.log("🌱 [Garden Stock] Final updating states:"),
+            console.log(`- Gear updating: ${C}`),
+            console.log(`- Seeds updating: ${W}`),
+            console.log(`- Egg updating: ${$e}`),
+            C !== re && ke(C),
+            W !== Y && ae(W),
+            $e !== oe && pe($e),
+            K && Ue(!1)
+        } catch (w) {
+            p.error("Error in refreshData:", w),
+            L("Error fetching garden stock data. Please try again later.")
+        } finally {
+            Be(!1),
+            J(!1)
+        }
+    }
+    , [t, o, d, K])
+      , ee = i.useCallback(async N => {
+        if (!N.length)
+            return;
+        J(!0);
+        const V = Math.floor(Q / 1e3)
+          , q = Math.floor(z / 1e3)
+          , w = Math.floor(X / 1e3)
+          , E = V <= 1 || V >= ie * 60 - 1 || q <= 1 || q >= ie * 60 - 1 || w <= 1 || w >= Ee * 60 - 1;
+        E || L(null);
+        try {
+            p.info(`Selectively refreshing stock types: ${N.join(", ")}`);
+            const b = await it();
+            if (L(null),
+            N.includes("gear_stock")) {
+                t.length > 0 && l(t);
+                const A = b.gear_stock.map(W => ({
+                    ...W,
+                    price: me(W.item_id) || W.price
+                }));
+                s(A),
+                _(b.gear_stock.length > 0),
+                ne(P("gear_stock")),
+                h || G(!0);
+                const S = b.gear_stock.length === 1 && b.gear_stock[0].item_id === "loading_gear"
+                  , D = se("gear_stock")
+                  , B = b.gear_stock.length > 0 && !S && new Date(b.gear_stock[0].date) >= D
+                  , C = S || !B;
+                p.debug("Gear stock updating check:", {
+                    stockCount: b.gear_stock.length,
+                    hasPlaceholder: S,
+                    currentCycleStart: D.toISOString(),
+                    hasValidCurrentCycleItems: B,
+                    isUpdating: C
+                }),
+                ke(C),
+                De(!1)
+            }
+            if (N.includes("seeds_stock")) {
+                o.length > 0 && j(o);
+                const A = b.seeds_stock.map(W => ({
+                    ...W,
+                    price: me(W.item_id) || W.price
+                }));
+                u(A),
+                I(b.seeds_stock.length > 0),
+                xe(P("seeds_stock")),
+                T || R(!0);
+                const S = b.seeds_stock.length === 1 && b.seeds_stock[0].item_id === "loading_seeds"
+                  , D = se("seeds_stock")
+                  , B = b.seeds_stock.length > 0 && !S && new Date(b.seeds_stock[0].date) >= D
+                  , C = S || !B;
+                p.debug("Seeds stock updating check:", {
+                    stockCount: b.seeds_stock.length,
+                    hasPlaceholder: S,
+                    currentCycleStart: D.toISOString(),
+                    hasValidCurrentCycleItems: B,
+                    isUpdating: C
+                }),
+                ae(C),
+                Ne(!1)
+            }
+            if (N.includes("egg_stock")) {
+                d.length > 0 && k(d);
+                const A = b.egg_stock.map(C => ({
+                    ...C,
+                    price: me(C.item_id) || C.price
+                }));
+                r(A),
+                c(b.egg_stock.length > 0),
+                Ce(P("egg_stock")),
+                he || Oe(!0);
+                const S = b.egg_stock.length === 1 && b.egg_stock[0].item_id === "loading_egg"
+                  , D = b.egg_stock.filter(C => C.active === !0 && C.item_id !== "loading_egg")
+                  , B = D.length === 0;
+                pe(B),
+                Se(!1),
+                p.debug("Egg stock updating check:", {
+                    stockCount: b.egg_stock.length,
+                    hasPlaceholder: S,
+                    activeEggCount: D.length,
+                    isUpdating: B
+                })
+            }
+            K && Ue(!1)
+        } catch (b) {
+            p.error("Error in selective refresh:", b),
+            E ? (p.info("Ignoring error during cycle change - this is normal behavior"),
+            N.includes("gear_stock") && (ke(!0),
+            De(!1)),
+            N.includes("seeds_stock") && (ae(!0),
+            Ne(!1)),
+            N.includes("egg_stock") && (pe(!0),
+            Se(!1))) : L("Error fetching garden stock data. Please try again later.")
+        } finally {
+            J(!1)
+        }
+    }
+    , [t, o, d, K, h, T, he, Q, z, X])
+      , Ge = i.useCallback( () => {
+        if (ue)
+            return;
+        const N = Date.now();
+        if (N - g.current < 3e3)
+            return;
+        const V = Math.floor(Q / 1e3)
+          , q = Math.floor(z / 1e3)
+          , w = Math.floor(X / 1e3)
+          , E = V <= 1
+          , b = q <= 1
+          , A = w <= 1
+          , S = V >= ie * 60 - 1
+          , D = q >= ie * 60 - 1
+          , B = w >= Ee * 60 - 1
+          , C = [];
+        (E || S || re || !v) && (C.push("gear_stock"),
+        (S || E) && p.info("🔄 Detected gear cycle boundary - checking for updates immediately")),
+        (b || D || Y || !m) && (C.push("seeds_stock"),
+        (D || b) && p.info("🔄 Detected seeds cycle boundary - checking for updates immediately")),
+        (A || B || oe || !a) && (C.push("egg_stock"),
+        (B || A) && p.info("🔄 Detected egg cycle boundary - checking for updates immediately")),
+        C.length > 0 && (p.info(`Smart refresh targeting stock types: ${C.join(", ")}`),
+        ee(C),
+        g.current = N)
+    }
+    , [ue, Q, z, X, re, Y, oe, v, m, a, ee]);
+    return i.useEffect( () => {
+        if (K) {
+            p.info("🚀 Initial load starting - fetching data for all stock types");
+            const w = se("gear_stock")
+              , E = se("seeds_stock")
+              , b = se("egg_stock");
+            p.debug("🔄 Current cycles on initial load:", {
+                gear: w.toISOString(),
+                seeds: E.toISOString(),
+                egg: b.toISOString()
+            }),
+            ee(["gear_stock", "seeds_stock", "egg_stock"]),
+            g.current = Date.now()
+        }
+        const N = setInterval( () => {
+            ne(P("gear_stock")),
+            xe(P("seeds_stock")),
+            Ce(P("egg_stock")),
+            Ge()
+        }
+        , 1e3)
+          , V = setInterval( () => {
+            const w = [];
+            if (re && w.push("gear_stock"),
+            Y && w.push("seeds_stock"),
+            oe && w.push("egg_stock"),
+            w.length > 0) {
+                const E = Date.now();
+                E - g.current >= 3e3 && (p.info(`Updating state check - refreshing stock types: ${w.join(", ")}`),
+                ee(w),
+                g.current = E)
+            }
+        }
+        , 3e3)
+          , q = setInterval( () => {
+            const w = Date.now();
+            if (w - g.current >= 1e3) {
+                const E = Math.floor(Q / 1e3)
+                  , b = Math.floor(z / 1e3)
+                  , A = Math.floor(X / 1e3)
+                  , S = [];
+                E >= ie * 60 - 1 && (S.push("gear_stock"),
+                p.info("Gear cycle just ended - checking for updates")),
+                b >= ie * 60 - 1 && (S.push("seeds_stock"),
+                p.info("Seeds cycle just ended - checking for updates")),
+                A >= Ee * 60 - 1 && (S.push("egg_stock"),
+                p.info("Egg cycle just ended - checking for updates")),
+                S.length > 0 && (p.info(`Cycle has just ended - refreshing stock types: ${S.join(", ")}`),
+                ee(S),
+                g.current = w)
+            }
+        }
+        , 1e3);
+        return () => {
+            clearInterval(N),
+            clearInterval(V),
+            clearInterval(q)
+        }
+    }
+    , [K, Ge, ee, re, Y, oe, Q, z, X]),
+    {
+        gearStocks: t,
+        seedsStocks: o,
+        eggStocks: d,
+        previousGearStocks: n,
+        previousSeedsStocks: f,
+        previousEggStocks: x,
+        gearValid: v,
+        seedsValid: m,
+        eggValid: a,
+        gearUpdating: re,
+        seedsUpdating: Y,
+        eggUpdating: oe,
+        gearMaintenanceMode: _e,
+        seedsMaintenanceMode: Fe,
+        eggMaintenanceMode: qe,
+        loading: U,
+        initialLoad: K,
+        refreshing: ue,
+        gearNextUpdate: Q,
+        seedsNextUpdate: z,
+        eggNextUpdate: X,
+        showPreviousGear: et,
+        showPreviousSeeds: ze,
+        showPreviousEgg: Z,
+        togglePreviousGear: Ke,
+        togglePreviousSeeds: Le,
+        togglePreviousEgg: Ae,
+        errorMessage: y,
+        smartRefresh: Ge,
+        refreshData: $,
+        refreshSelectedStockTypes: ee
+    }
+}
+const ss = () => e.jsxs(e.Fragment, {
+    children: [e.jsxs("div", {
+        className: "sr-only",
+        children: [e.jsx("h2", {
+            children: "What is Grow a Garden Stock Tracker?"
+        }), e.jsx("p", {
+            children: "Grow a Garden Stock Tracker is a real-time monitoring tool that tracks all shop inventories in the Roblox game Grow a Garden. Our tracker updates every 3 seconds, making it the fastest and most accurate stock monitoring tool available. We track Seeds Shop, Gear Shop, Egg Shop, Blood Moon Shop, and current weather conditions."
+        }), e.jsx("h2", {
+            children: "Grow a Garden Stock Tracker Features"
+        }), e.jsxs("ul", {
+            children: [e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Live Seeds Shop Stock"
+                }), " - Track all seed availability and prices in Sheckles, including rare seeds like Moonflower, Dragon Fruit, and exclusive event seeds"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Real-time Gear Shop Stock"
+                }), " - Monitor gear inventory updates every 5 minutes, including Sprinklers, Watering Cans, and special tools"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Current Egg Shop Stock"
+                }), " - Check egg availability with 30-minute refresh cycles, featuring Basic Eggs, Exotic Eggs, and limited-time event eggs"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Blood Moon Shop Tracker"
+                }), " - Exclusive items available from :00 to :15 UTC every hour during Blood Moon weather events"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Live Weather Monitoring"
+                }), " - Rain, Thunderstorm, Snow, Sunny, Foggy, and Blood Moon conditions tracked in real-time"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "3-Second Update Intervals"
+                }), " - The fastest weather and stock tracking for Grow a Garden on the internet"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Stock History"
+                }), " - View historical data for all shops and weather patterns"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Discord Bot Integration"
+                }), " - Get instant alerts for specific items you're looking for"]
+            })]
+        }), e.jsx("h2", {
+            children: "How Often Does Grow a Garden Stock Update?"
+        }), e.jsx("p", {
+            children: "Grow a Garden shop stocks update on different schedules: Seeds and Gear shops refresh every 5 minutes starting from 00:00 UTC. Egg shop updates every 30 minutes. Weather changes can happen at any time, which is why we check every 3 seconds for the most accurate information. Blood Moon Shop appears only during Blood Moon weather from :00 to :15 each hour."
+        }), e.jsx("h2", {
+            children: "Popular Grow a Garden Stock Searches"
+        }), e.jsx("p", {
+            children: "grow a garden stock, grow a garden stock tracker, grow a garden seeds stock, grow a garden gear stock, grow a garden egg stock, grow a garden blood moon shop, grow a garden weather, grow a garden weather tracker, grow a garden shop tracker, grow a garden live stock, grow a garden real time stock, grow a garden shop refresh times, grow a garden blood moon times, grow a garden weather effects, grow a garden stock bot, grow a garden inventory tracker"
+        }), e.jsx("h2", {
+            children: "Complete Blood Moon Shop Items List"
+        }), e.jsx("p", {
+            children: "The Blood Moon Shop in Grow a Garden offers exclusive items only available during Blood Moon weather events from :00 to :15 UTC:"
+        }), e.jsxs("ul", {
+            children: [e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Mysterious Crate"
+                }), " - Contains random rare items"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Night Egg"
+                }), " - Special egg with night-themed pets"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Blood Banana Seed"
+                }), " - Exclusive Blood Moon variant seed"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Moon Melon Seed"
+                }), " - Rare lunar-themed fruit seed"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Star Caller"
+                }), " - Mythical tool for celestial gardening"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Blood Kiwi"
+                }), " - Blood Moon exclusive fruit"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Blood Hedgehog"
+                }), " - Special Blood Moon pet"]
+            }), e.jsxs("li", {
+                children: [e.jsx("strong", {
+                    children: "Blood Owl"
+                }), " - Nocturnal companion pet"]
+            })]
+        }), e.jsx("h2", {
+            children: "All Weather Effects in Grow a Garden Explained"
+        }), e.jsxs("dl", {
+            children: [e.jsx("dt", {
+                children: e.jsx("strong", {
+                    children: "Rain Weather"
+                })
+            }), e.jsx("dd", {
+                children: "Increases crop growth speed by 2x. Best time to plant new seeds for faster harvests."
+            }), e.jsx("dt", {
+                children: e.jsx("strong", {
+                    children: "Thunderstorm Weather"
+                })
+            }), e.jsx("dd", {
+                children: "May damage crops but can create special mutations. Risk vs reward weather condition."
+            }), e.jsx("dt", {
+                children: e.jsx("strong", {
+                    children: "Snow Weather"
+                })
+            }), e.jsx("dd", {
+                children: "Slows growth by 50% but can create frost variants. Winter-themed crops thrive."
+            }), e.jsx("dt", {
+                children: e.jsx("strong", {
+                    children: "Sunny Weather"
+                })
+            }), e.jsx("dd", {
+                children: "Normal growing conditions with standard growth rates. Most predictable weather."
+            }), e.jsx("dt", {
+                children: e.jsx("strong", {
+                    children: "Foggy/Misty Weather"
+                })
+            }), e.jsx("dd", {
+                children: "Reduces visibility but increases chance of finding rare seeds. Mystery weather."
+            }), e.jsx("dt", {
+                children: e.jsx("strong", {
+                    children: "Blood Moon Weather"
+                })
+            }), e.jsx("dd", {
+                children: "Enables access to exclusive Blood Moon Shop from :00-:15. Rarest weather event."
+            })]
+        }), e.jsx("h2", {
+            children: "Grow a Garden Shop Stock Guide"
+        }), e.jsx("h3", {
+            children: "Seeds Shop Stock Categories"
+        }), e.jsx("p", {
+            children: "Common Seeds: Carrot, Tomato, Corn, Wheat • Uncommon Seeds: Strawberry, Blueberry, Grape • Rare Seeds: Dragon Fruit, Star Fruit, Crystal Berry • Legendary Seeds: Rainbow Flower, Golden Apple, Diamond Melon • Event Seeds: Seasonal and limited-time offerings"
+        }), e.jsx("h3", {
+            children: "Gear Shop Stock Categories"
+        }), e.jsx("p", {
+            children: "Basic Tools: Wooden Watering Can, Basic Hoe • Advanced Tools: Metal Watering Can, Sprinkler System • Premium Tools: Golden Tools, Automatic Harvesters • Special Items: Growth Potions, Fertilizers, Protection Shields"
+        }), e.jsx("h3", {
+            children: "Egg Shop Stock Categories"
+        }), e.jsx("p", {
+            children: "Basic Eggs: Common Pet Eggs • Rare Eggs: Exotic Pet Eggs • Event Eggs: Seasonal and limited-time eggs • Premium Eggs: Robux-exclusive eggs with guaranteed rare pets"
+        }), e.jsx("h2", {
+            children: "Why Use Arcaiuz Grow a Garden Stock Tracker?"
+        }), e.jsx("p", {
+            children: "Unlike other trackers that update hourly or every few minutes, Arcaiuz provides real-time updates every 3 seconds. We're the only tracker with Blood Moon Shop monitoring, comprehensive weather tracking, and instant Discord alerts. Our advanced system ensures you never miss rare items or optimal planting conditions."
+        })]
+    }), e.jsxs("div", {
+        itemScope: !0,
+        itemType: "https://schema.org/VideoGame",
+        className: "hidden",
+        children: [e.jsx("meta", {
+            itemProp: "name",
+            content: "Grow a Garden"
+        }), e.jsx("meta", {
+            itemProp: "gamePlatform",
+            content: "Roblox"
+        }), e.jsx("meta", {
+            itemProp: "applicationCategory",
+            content: "Simulation Game"
+        }), e.jsx("meta", {
+            itemProp: "description",
+            content: "Grow a Garden is a Roblox farming simulation game where players buy seeds, grow crops, and trade items"
+        }), e.jsx("meta", {
+            itemProp: "publisher",
+            content: "Roblox Corporation"
+        }), e.jsxs("div", {
+            itemProp: "offers",
+            itemScope: !0,
+            itemType: "https://schema.org/Offer",
+            children: [e.jsx("meta", {
+                itemProp: "price",
+                content: "0"
+            }), e.jsx("meta", {
+                itemProp: "priceCurrency",
+                content: "USD"
+            }), e.jsx("meta", {
+                itemProp: "availability",
+                content: "https://schema.org/InStock"
+            })]
+        }), e.jsxs("div", {
+            itemProp: "aggregateRating",
+            itemScope: !0,
+            itemType: "https://schema.org/AggregateRating",
+            children: [e.jsx("meta", {
+                itemProp: "ratingValue",
+                content: "4.8"
+            }), e.jsx("meta", {
+                itemProp: "ratingCount",
+                content: "125000"
+            })]
+        })]
+    }), e.jsx("script", {
+        type: "application/ld+json",
+        dangerouslySetInnerHTML: {
+            __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: [{
+                    "@type": "Question",
+                    name: "How often does Grow a Garden stock refresh?",
+                    acceptedAnswer: {
+                        "@type": "Answer",
+                        text: "Seeds and Gear shops refresh every 5 minutes. Egg shop refreshes every 30 minutes. All shops follow UTC time starting from 00:00."
+                    }
+                }, {
+                    "@type": "Question",
+                    name: "What time is Blood Moon Shop open in Grow a Garden?",
+                    acceptedAnswer: {
+                        "@type": "Answer",
+                        text: "Blood Moon Shop opens from :00 to :15 every hour (UTC time) when Blood Moon weather is active. For example: 1:00-1:15, 2:00-2:15, etc."
+                    }
+                }, {
+                    "@type": "Question",
+                    name: "What are the best items in Grow a Garden Blood Moon Shop?",
+                    acceptedAnswer: {
+                        "@type": "Answer",
+                        text: "The most valuable Blood Moon Shop items are: Star Caller (mythical tool), Blood Owl (rare pet), and Mysterious Crate (contains random rare items)."
+                    }
+                }]
+            })
+        }
+    })]
+})
+  , rs = ({weather: t}) => {
+    if (!t)
+        return null;
+    const o = {
+        rain: "Rain weather increases crop growth speed in Grow a Garden. Current weather: Rainy conditions.",
+        thunderstorm: "Thunderstorm weather may damage crops. Current weather: Thunder and lightning active.",
+        snow: "Snow weather slows down crop growth. Current weather: Snowy conditions.",
+        sunny: "Sunny weather provides normal growing conditions. Current weather: Clear and sunny.",
+        foggy: "Foggy weather reduces visibility. Current weather: Misty conditions.",
+        "blood moon": "Blood Moon weather enables special shop from :00-:15. Current weather: Blood Moon active."
+    }[t.toLowerCase()] || `Current weather in Grow a Garden: ${t}`;
+    return e.jsx("meta", {
+        name: "description",
+        content: o,
+        className: "hidden"
+    })
+}
+  , us = () => {
+    const {gearStocks: t, seedsStocks: s, eggStocks: o, previousGearStocks: u, previousSeedsStocks: d, previousEggStocks: r, gearValid: n, seedsValid: l, eggValid: f, gearUpdating: j, seedsUpdating: x, eggUpdating: k, gearMaintenanceMode: v, seedsMaintenanceMode: _, eggMaintenanceMode: m, loading: I, refreshing: a, gearNextUpdate: c, seedsNextUpdate: h, eggNextUpdate: G, showPreviousGear: T, showPreviousSeeds: R, showPreviousEgg: he, togglePreviousGear: Oe, togglePreviousSeeds: re, togglePreviousEgg: ke, errorMessage: Y, refreshData: ae} = ts()
+      , [oe,pe] = i.useState(!1)
+      , [_e,De] = i.useState("gear_stock")
+      , [Fe,Ne] = i.useState(!1)
+      , [qe,Se] = i.useState(!1)
+      , [U,Be] = i.useState(null)
+      , [K,Ue] = i.useState(!0)
+      , [ue,J] = i.useState(null)
+      , [Q,ne] = i.useState(!1)
+      , [z,xe] = i.useState([])
+      , [X,Ce] = i.useState(!0)
+      , [et,we] = i.useState(null)
+      , [ze,Me] = i.useState(!1)
+      , Z = g => {
+        g === "weather" ? Ne(!0) : g === "bloodmoonshop" ? Se(!0) : (De(g),
+        pe(!0))
+    }
+      , Ye = g => {
+        const y = g.toLowerCase();
+        return y.includes("sunny") || y.includes("clear") ? e.jsx(tt, {
+            className: "w-12 h-12 text-yellow-400"
+        }) : y.includes("rain") ? e.jsx(st, {
+            className: "w-12 h-12 text-blue-400"
+        }) : y.includes("storm") || y.includes("thunder") ? e.jsx(at, {
+            className: "w-12 h-12 text-purple-400"
+        }) : y.includes("snow") ? e.jsx(rt, {
+            className: "w-12 h-12 text-blue-200"
+        }) : y.includes("wind") ? e.jsx(Gt, {
+            className: "w-12 h-12 text-gray-400"
+        }) : y.includes("drizzle") ? e.jsx(Tt, {
+            className: "w-12 h-12 text-blue-300"
+        }) : y.includes("fog") || y.includes("mist") ? e.jsx(It, {
+            className: "w-12 h-12 text-gray-300"
+        }) : e.jsx(Re, {
+            className: "w-12 h-12 text-gray-400"
+        })
+    }
+      , Ke = g => {
+        const y = g.toLowerCase();
+        return y.includes("sunny") || y.includes("clear") ? "from-blue-400 to-yellow-300" : y.includes("rain") ? "from-gray-700 to-blue-600" : y.includes("storm") || y.includes("thunder") ? "from-gray-900 to-purple-900" : y.includes("snow") ? "from-blue-200 to-white" : y.includes("wind") ? "from-gray-600 to-gray-800" : y.includes("drizzle") ? "from-gray-600 to-blue-500" : y.includes("fog") || y.includes("mist") ? "from-gray-500 to-gray-300" : "from-blue-500 to-gray-700"
+    }
+      , Le = async () => {
+        try {
+            const {data: g, error: y} = await He.from("growagarden_stock").select("*").eq("type", "weather").eq("active", !0).order("date", {
+                ascending: !1
+            }).limit(1);
+            if (y) {
+                p.error("Error fetching weather data:", y),
+                J("Failed to fetch weather data"),
+                ne(!1);
+                return
+            }
+            g && g.length > 0 ? (Be(g[0]),
+            J(null),
+            ne(!1)) : (Be(null),
+            J(null),
+            ne(!0))
+        } catch (g) {
+            p.error("Exception fetching weather data:", g),
+            J("An error occurred while fetching weather data"),
+            ne(!1)
+        } finally {
+            Ue(!1)
+        }
+    }
+      , Ae = async () => {
+        try {
+            const {data: g, error: y} = await He.from("growagarden_stock").select("*").eq("type", "bloodmoonshop").eq("active", !0).order("display_name");
+            if (y) {
+                p.error("Error fetching Blood Moon Shop data:", y),
+                we("Failed to fetch Blood Moon Shop data");
+                return
+            }
+            g && g.length > 0 ? (xe(g),
+            we(null)) : (xe([]),
+            we(null))
+        } catch (g) {
+            p.error("Exception fetching Blood Moon Shop data:", g),
+            we("An error occurred while fetching Blood Moon Shop data")
+        } finally {
+            Ce(!1)
+        }
+    }
+    ;
+    return i.useEffect( () => {
+        Le();
+        const g = setInterval(Le, 3e3);
+        return () => clearInterval(g)
+    }
+    , []),
+    i.useEffect( () => {
+        Ae();
+        const g = setInterval( () => {
+            const L = new Date().getUTCMinutes();
+            L >= 0 && L < 15 && Ae()
+        }
+        , 3e3);
+        return () => clearInterval(g)
+    }
+    , []),
+    i.useEffect( () => {
+        const g = () => {
+            const L = new Date
+              , $ = L.getUTCMinutes()
+              , ee = $ >= 0 && $ < 15;
+            if (z.length > 0 && ee) {
+                const Ge = z.some(N => N.ends_at ? new Date(N.ends_at) > L : !1);
+                Me(!!Ge)
+            } else
+                Me(!1)
+        }
+        ;
+        g();
+        const y = setInterval(g, 1e3);
+        return () => clearInterval(y)
+    }
+    , [z]),
+    e.jsxs(e.Fragment, {
+        children: [e.jsxs(pt, {
+            children: [e.jsx("title", {
+                children: "Grow a Garden Stock Tracker LIVE - Seeds, Gear, Eggs + Blood Moon Shop | Real-Time Updates"
+            }), e.jsx("meta", {
+                name: "description",
+                content: "🔴 LIVE Grow a Garden stock tracker with 3-second updates! Track Seeds, Gear, Egg shops + exclusive Blood Moon Shop (:00-:15 UTC) + Weather (Rain/Snow/Thunder). Most accurate real-time tracker - Never miss rare items!"
+            }), e.jsx("meta", {
+                name: "keywords",
+                content: "grow a garden stock, grow a garden stock tracker, grow a garden live stock, grow a garden seeds stock, grow a garden gear stock, grow a garden egg stock, grow a garden blood moon shop, grow a garden weather, grow a garden weather tracker, grow a garden real time, grow a garden shop tracker, grow a garden seed shop, grow a garden gear shop, grow a garden egg shop, blood moon shop grow a garden, blood moon shop times, grow a garden current weather, grow a garden rain weather, grow a garden thunderstorm, grow a garden snow weather, grow a garden sunny weather, grow a garden night cycle, grow a garden weather effects, grow a garden stock prices, grow a garden shop prices, grow a garden seeds prices, grow a garden gear prices, grow a garden egg prices, blood moon shop items, mysterious crate grow a garden, night egg grow a garden, blood banana seed, moon melon seed, star caller grow a garden, blood kiwi, blood hedgehog, blood owl, grow a garden market tracker, grow a garden price tracker, grow a garden shop monitor, roblox grow a garden stock, roblox grow a garden tracker, grow a garden stock bot, grow a garden discord bot, grow a garden shop refresh, grow a garden shop rotation, grow a garden update times, arcaiuz grow a garden"
+            }), e.jsx("meta", {
+                name: "robots",
+                content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+            }), e.jsx("meta", {
+                name: "googlebot",
+                content: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+            }), e.jsx("meta", {
+                name: "bingbot",
+                content: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+            }), e.jsx("meta", {
+                property: "og:title",
+                content: "🔴 LIVE Grow a Garden Stock Tracker - All Shops & Weather Real-Time"
+            }), e.jsx("meta", {
+                property: "og:description",
+                content: "Track ALL Grow a Garden shops LIVE! Seeds stock, Gear stock, Egg stock, Blood Moon Shop (:00-:15), plus current weather. Updates every 3 seconds. The most accurate Garden tracker!"
+            }), e.jsx("meta", {
+                property: "og:type",
+                content: "website"
+            }), e.jsx("meta", {
+                property: "og:url",
+                content: "https://arcaiuz.com/grow-a-garden-stock"
+            }), e.jsx("meta", {
+                property: "og:image",
+                content: "https://arcaiuz.com/og-grow-a-garden-stock.png"
+            }), e.jsx("meta", {
+                property: "og:image:width",
+                content: "1200"
+            }), e.jsx("meta", {
+                property: "og:image:height",
+                content: "630"
+            }), e.jsx("meta", {
+                property: "og:site_name",
+                content: "Arcaiuz - Roblox Trading Tools"
+            }), e.jsx("meta", {
+                property: "og:locale",
+                content: "en_US"
+            }), e.jsx("meta", {
+                name: "twitter:card",
+                content: "summary_large_image"
+            }), e.jsx("meta", {
+                name: "twitter:title",
+                content: "🔴 LIVE Grow a Garden Tracker - All Shops & Weather"
+            }), e.jsx("meta", {
+                name: "twitter:description",
+                content: "Real-time tracking of Seeds, Gear, Eggs, Blood Moon Shop & Weather in Grow a Garden. Updates every 3 seconds!"
+            }), e.jsx("meta", {
+                name: "twitter:image",
+                content: "https://arcaiuz.com/twitter-grow-a-garden-stock.png"
+            }), e.jsx("meta", {
+                name: "twitter:site",
+                content: "@arcaiuz"
+            }), e.jsx("link", {
+                rel: "canonical",
+                href: "https://arcaiuz.com/grow-a-garden-stock"
+            }), e.jsx("link", {
+                rel: "alternate",
+                type: "application/json+oembed",
+                href: "https://arcaiuz.com/api/oembed?url=https://arcaiuz.com/grow-a-garden-stock"
+            }), e.jsx("meta", {
+                name: "author",
+                content: "Arcaiuz Trading Team"
+            }), e.jsx("meta", {
+                name: "publisher",
+                content: "Arcaiuz"
+            }), e.jsx("meta", {
+                name: "category",
+                content: "Gaming, Roblox, Trading Tools"
+            }), e.jsx("meta", {
+                name: "coverage",
+                content: "Worldwide"
+            }), e.jsx("meta", {
+                name: "distribution",
+                content: "Global"
+            }), e.jsx("meta", {
+                name: "rating",
+                content: "General"
+            }), e.jsx("meta", {
+                name: "revisit-after",
+                content: "1 hour"
+            }), e.jsx("meta", {
+                name: "target",
+                content: "all"
+            }), e.jsx("meta", {
+                name: "HandheldFriendly",
+                content: "True"
+            }), e.jsx("meta", {
+                name: "MobileOptimized",
+                content: "320"
+            }), e.jsx("meta", {
+                name: "apple-mobile-web-app-capable",
+                content: "yes"
+            }), e.jsx("meta", {
+                name: "apple-mobile-web-app-status-bar-style",
+                content: "black-translucent"
+            }), e.jsx("meta", {
+                name: "format-detection",
+                content: "telephone=no"
+            }), e.jsx("meta", {
+                name: "theme-color",
+                content: "#10b981"
+            }), e.jsx("link", {
+                rel: "preconnect",
+                href: "https://kwduikwbdmfkgpzfqnsp.supabase.co"
+            }), e.jsx("link", {
+                rel: "dns-prefetch",
+                href: "https://kwduikwbdmfkgpzfqnsp.supabase.co"
+            }), e.jsx("script", {
+                type: "application/ld+json",
+                children: JSON.stringify([{
+                    "@context": "https://schema.org",
+                    "@type": "WebApplication",
+                    name: "Grow a Garden Stock Tracker - Live Updates",
+                    alternativeName: "Garden Stock Monitor",
+                    applicationCategory: "GameApplication",
+                    operatingSystem: "Web",
+                    description: "Real-time stock tracker for Grow a Garden. Monitor Seeds shop, Gear shop, Egg shop, Blood Moon Shop (:00-:15 UTC), and live weather updates every 3 seconds.",
+                    url: "https://arcaiuz.com/grow-a-garden-stock",
+                    image: "https://arcaiuz.com/grow-a-garden-tracker-preview.png",
+                    screenshot: "https://arcaiuz.com/grow-a-garden-screenshot.png",
+                    softwareVersion: "2.0",
+                    datePublished: "2024-01-01",
+                    dateModified: new Date().toISOString(),
+                    provider: {
+                        "@type": "Organization",
+                        name: "Arcaiuz",
+                        url: "https://arcaiuz.com",
+                        logo: "https://arcaiuz.com/logo.png"
+                    },
+                    offers: {
+                        "@type": "Offer",
+                        price: "0",
+                        priceCurrency: "USD",
+                        availability: "https://schema.org/InStock"
+                    },
+                    aggregateRating: {
+                        "@type": "AggregateRating",
+                        ratingValue: "4.9",
+                        ratingCount: "3821",
+                        bestRating: "5",
+                        worstRating: "1"
+                    },
+                    featureList: ["Real-time Seeds shop stock tracking", "Live Gear shop inventory monitoring", "Current Egg shop stock updates", "Blood Moon Shop tracker (:00-:15 UTC)", "Live weather monitoring (rain, snow, thunderstorm, sunny)", "3-second update intervals", "Stock availability history", "Weather event history", "Mobile-responsive design", "Discord bot integration", "Stock change notifications", "Multi-shop dashboard view"]
+                }, {
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    mainEntity: [{
+                        "@type": "Question",
+                        name: "What time does Blood Moon Shop open in Grow a Garden?",
+                        acceptedAnswer: {
+                            "@type": "Answer",
+                            "@id": "https://arcaiuz.com/grow-a-garden-stock#bloodmoon-times",
+                            text: "Blood Moon Shop opens from :00 to :15 every hour (UTC time). For example: 1:00-1:15, 2:00-2:15, etc. You need to find a server with Blood Moon weather during these times."
+                        }
+                    }, {
+                        "@type": "Question",
+                        name: "How often does Grow a Garden stock update?",
+                        acceptedAnswer: {
+                            "@type": "Answer",
+                            "@id": "https://arcaiuz.com/grow-a-garden-stock#update-frequency",
+                            text: "Seeds and Gear shops update every 5 minutes starting from 00:00 UTC. Egg shop updates every 30 minutes. Weather changes are checked every 3 seconds for real-time accuracy."
+                        }
+                    }, {
+                        "@type": "Question",
+                        name: "How do weather events affect Grow a Garden?",
+                        acceptedAnswer: {
+                            "@type": "Answer",
+                            "@id": "https://arcaiuz.com/grow-a-garden-stock#weather-effects",
+                            text: "Weather affects gameplay: Rain increases growth speed, Thunderstorms may damage crops, Snow slows growth, Sunny weather provides normal conditions. Blood Moon enables special shop access."
+                        }
+                    }]
+                }, {
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    itemListElement: [{
+                        "@type": "ListItem",
+                        position: 1,
+                        name: "Home",
+                        item: "https://arcaiuz.com"
+                    }, {
+                        "@type": "ListItem",
+                        position: 2,
+                        name: "Roblox Tools",
+                        item: "https://arcaiuz.com/roblox"
+                    }, {
+                        "@type": "ListItem",
+                        position: 3,
+                        name: "Grow a Garden Stock Tracker",
+                        item: "https://arcaiuz.com/grow-a-garden-stock"
+                    }]
+                }, {
+                    "@context": "https://schema.org",
+                    "@type": "Dataset",
+                    name: "Grow a Garden Live Stock Data",
+                    description: "Real-time stock availability for Seeds, Gear, and Eggs shops in Grow a Garden, plus weather conditions",
+                    temporalCoverage: "2024-01-01/..",
+                    spatialCoverage: "Roblox Grow a Garden",
+                    license: "https://creativecommons.org/licenses/by/4.0/",
+                    creator: {
+                        "@type": "Organization",
+                        name: "Arcaiuz"
+                    },
+                    distribution: {
+                        "@type": "DataDownload",
+                        encodingFormat: "application/json",
+                        contentUrl: "https://arcaiuz.com/api/garden-stock"
+                    },
+                    variableMeasured: [{
+                        "@type": "PropertyValue",
+                        name: "Seeds Shop Stock",
+                        unitText: "Items Available"
+                    }, {
+                        "@type": "PropertyValue",
+                        name: "Gear Shop Stock",
+                        unitText: "Items Available"
+                    }, {
+                        "@type": "PropertyValue",
+                        name: "Egg Shop Stock",
+                        unitText: "Items Available"
+                    }, {
+                        "@type": "PropertyValue",
+                        name: "Current Weather",
+                        unitText: "Weather Type"
+                    }]
+                }])
+            })]
+        }), e.jsxs("div", {
+            className: "min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-950 text-white relative overflow-hidden",
+            children: [e.jsx("div", {
+                className: "fixed bottom-6 right-6 z-50",
+                children: e.jsx(M, {
+                    size: "icon",
+                    className: `rounded-full w-12 h-12 bg-green-600/80 hover:bg-green-600 text-white shadow-lg shadow-green-900/30 ${a ? "animate-pulse" : ""}`,
+                    onClick: () => ae(),
+                    disabled: a,
+                    children: e.jsx(de, {
+                        size: 20,
+                        className: a ? "animate-spin" : ""
+                    })
+                })
+            }), e.jsxs("div", {
+                className: "absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none",
+                children: [e.jsx("div", {
+                    className: "absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_10%_20%,rgba(20,120,60,0.05)_0%,rgba(0,0,0,0)_50%)] pointer-events-none"
+                }), e.jsx("div", {
+                    className: "absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_80%_80%,rgba(0,100,100,0.05)_0%,rgba(0,0,0,0)_50%)] pointer-events-none"
+                }), e.jsx("div", {
+                    className: "absolute top-20 left-10 w-64 h-64 rounded-full bg-green-500/5 blur-3xl"
+                }), e.jsx("div", {
+                    className: "absolute bottom-40 right-10 w-80 h-80 rounded-full bg-emerald-500/5 blur-3xl"
+                }), e.jsx("div", {
+                    className: "absolute top-1/2 left-1/3 w-56 h-56 rounded-full bg-blue-500/3 blur-3xl"
+                }), e.jsx("div", {
+                    className: "absolute top-1/3 right-1/4 w-1 h-1 rounded-full bg-green-500 animate-pulse"
+                }), e.jsx("div", {
+                    className: "absolute top-2/3 left-1/3 w-1 h-1 rounded-full bg-emerald-500 animate-pulse"
+                }), e.jsx("div", {
+                    className: "absolute bottom-1/4 right-1/3 w-1 h-1 rounded-full bg-teal-500 animate-pulse"
+                }), e.jsx("div", {
+                    className: "absolute top-1/4 left-1/2 w-1 h-1 rounded-full bg-lime-500 animate-pulse"
+                }), e.jsx("div", {
+                    className: "absolute top-1/2 right-1/2 w-1 h-1 rounded-full bg-white animate-pulse"
+                }), e.jsx("div", {
+                    className: "hidden md:block absolute top-[15%] right-[10%] w-1.5 h-1.5 rounded-full bg-yellow-300/70 animate-ping",
+                    style: {
+                        animationDuration: "5s",
+                        animationDelay: "1s"
+                    }
+                }), e.jsx("div", {
+                    className: "hidden md:block absolute top-[75%] left-[15%] w-1.5 h-1.5 rounded-full bg-emerald-300/70 animate-ping",
+                    style: {
+                        animationDuration: "7s",
+                        animationDelay: "0.5s"
+                    }
+                })]
+            }), e.jsx(ut, {}), e.jsx(ss, {}), e.jsx(rs, {
+                weather: U == null ? void 0 : U.display_name
+            }), e.jsx("main", {
+                className: "flex-grow container mx-auto px-4 py-8 relative z-10",
+                children: e.jsxs("div", {
+                    className: "max-w-5xl mx-auto",
+                    children: [e.jsxs("div", {
+                        className: "text-center mb-8 relative overflow-hidden",
+                        children: [e.jsx("div", {
+                            className: "hidden md:block absolute top-0 left-0 w-full h-20 bg-gradient-to-r from-green-500/5 via-emerald-500/10 to-green-500/5 transform -skew-y-3 rounded-3xl -z-10"
+                        }), e.jsx("h1", {
+                            className: "text-3xl md:text-4xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-300 to-teal-400 px-6 py-2 relative",
+                            children: "🔴 LIVE Grow a Garden Stock Tracker - All Shops & Weather"
+                        }), e.jsxs("p", {
+                            className: "text-gray-400 max-w-2xl mx-auto text-lg",
+                            children: ["The ", e.jsx("strong", {
+                                className: "text-green-400",
+                                children: "fastest and most accurate"
+                            }), " Grow a Garden stock tracker with real-time updates every 3 seconds!"]
+                        }), e.jsx("p", {
+                            className: "text-gray-500 max-w-xl mx-auto text-sm mt-2",
+                            children: "Track Seeds, Gear, Egg shops + exclusive Blood Moon Shop (:00-:15 UTC) + Live weather conditions"
+                        }), e.jsxs("div", {
+                            className: "flex items-center justify-center space-x-1 mt-3",
+                            children: [e.jsx("span", {
+                                className: "inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"
+                            }), e.jsx("span", {
+                                className: "text-xs text-green-400",
+                                children: "Live Updates"
+                            }), e.jsx("span", {
+                                className: "text-xs text-gray-500",
+                                children: "• Weather: 3 sec • Seeds/Gear: 5 min • Eggs: 30 min • Blood Moon: :00-:15 UTC"
+                            })]
+                        })]
+                    }), e.jsx("div", {
+                        className: `mb-6 transition-all duration-300 ${Y ? "opacity-100" : "opacity-0 h-0 overflow-hidden"}`,
+                        children: e.jsxs("div", {
+                            className: "bg-red-900/30 border border-red-500/50 text-red-200 px-4 py-3 rounded relative",
+                            children: [e.jsxs("div", {
+                                className: "flex items-center",
+                                children: [e.jsx("svg", {
+                                    xmlns: "http://www.w3.org/2000/svg",
+                                    className: "h-6 w-6 mr-2 text-red-400",
+                                    fill: "none",
+                                    viewBox: "0 0 24 24",
+                                    stroke: "currentColor",
+                                    children: e.jsx("path", {
+                                        strokeLinecap: "round",
+                                        strokeLinejoin: "round",
+                                        strokeWidth: 2,
+                                        d: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                    })
+                                }), e.jsx("span", {
+                                    className: "font-medium",
+                                    children: Y || ""
+                                })]
+                            }), e.jsx("div", {
+                                className: "mt-2 text-sm",
+                                children: "Please contact the administrator to ensure the Edge Function is properly deployed."
+                            }), e.jsx("button", {
+                                onClick: () => ae(),
+                                className: "mt-2 bg-red-800/50 hover:bg-red-700/50 text-white py-1 px-3 rounded text-xs",
+                                children: "Try Again"
+                            })]
+                        })
+                    }), e.jsxs("div", {
+                        className: "flex flex-wrap justify-center gap-3 mb-8",
+                        children: [e.jsxs(M, {
+                            variant: "outline",
+                            size: "default",
+                            className: "bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-green-500/30 hover:bg-gray-800 text-green-400 hover:border-green-500/50 relative overflow-hidden group shadow-md",
+                            onClick: () => ae(),
+                            disabled: a,
+                            children: [e.jsx("span", {
+                                className: "absolute inset-0 w-full h-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                            }), e.jsx(de, {
+                                size: 16,
+                                className: `mr-2 ${a ? "animate-spin text-yellow-400" : ""}`
+                            }), a ? "Refreshing..." : "Refresh Now"]
+                        }), e.jsxs(M, {
+                            variant: "outline",
+                            size: "default",
+                            className: "bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-cyan-500/30 hover:bg-gray-800 text-cyan-400 hover:border-cyan-500/50 relative overflow-hidden group shadow-md",
+                            onClick: () => {
+                                var g;
+                                (g = document.getElementById("weather-section")) == null || g.scrollIntoView({
+                                    behavior: "smooth"
+                                })
+                            }
+                            ,
+                            children: [e.jsx("span", {
+                                className: "absolute inset-0 w-full h-full bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                            }), e.jsx(Re, {
+                                className: "w-4 h-4 mr-2"
+                            }), "Weather"]
+                        }), e.jsxs(M, {
+                            variant: "outline",
+                            size: "default",
+                            className: "bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-blue-500/30 hover:bg-gray-800 text-blue-400 hover:border-blue-500/50 relative overflow-hidden group shadow-md",
+                            onClick: () => {
+                                var g;
+                                (g = document.getElementById("gear-section")) == null || g.scrollIntoView({
+                                    behavior: "smooth"
+                                })
+                            }
+                            ,
+                            children: [e.jsx("span", {
+                                className: "absolute inset-0 w-full h-full bg-gradient-to-r from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                            }), e.jsxs("svg", {
+                                xmlns: "http://www.w3.org/2000/svg",
+                                viewBox: "0 0 24 24",
+                                fill: "none",
+                                stroke: "currentColor",
+                                strokeWidth: "2",
+                                strokeLinecap: "round",
+                                strokeLinejoin: "round",
+                                className: "w-4 h-4 mr-2",
+                                children: [e.jsx("circle", {
+                                    cx: "12",
+                                    cy: "12",
+                                    r: "3"
+                                }), e.jsx("path", {
+                                    d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                                })]
+                            }), "Gear"]
+                        }), e.jsxs(M, {
+                            variant: "outline",
+                            size: "default",
+                            className: "bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-green-500/30 hover:bg-gray-800 text-green-400 hover:border-green-500/50 relative overflow-hidden group shadow-md",
+                            onClick: () => {
+                                var g;
+                                (g = document.getElementById("seeds-section")) == null || g.scrollIntoView({
+                                    behavior: "smooth"
+                                })
+                            }
+                            ,
+                            children: [e.jsx("span", {
+                                className: "absolute inset-0 w-full h-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                            }), e.jsx("svg", {
+                                xmlns: "http://www.w3.org/2000/svg",
+                                viewBox: "0 0 24 24",
+                                fill: "none",
+                                stroke: "currentColor",
+                                strokeWidth: "2",
+                                strokeLinecap: "round",
+                                strokeLinejoin: "round",
+                                className: "w-4 h-4 mr-2",
+                                children: e.jsx("path", {
+                                    d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                                })
+                            }), "Seeds"]
+                        }), e.jsxs(M, {
+                            variant: "outline",
+                            size: "default",
+                            className: "bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-yellow-500/30 hover:bg-gray-800 text-yellow-400 hover:border-yellow-500/50 relative overflow-hidden group shadow-md",
+                            onClick: () => {
+                                var g;
+                                (g = document.getElementById("eggs-section")) == null || g.scrollIntoView({
+                                    behavior: "smooth"
+                                })
+                            }
+                            ,
+                            children: [e.jsx("span", {
+                                className: "absolute inset-0 w-full h-full bg-gradient-to-r from-yellow-500/10 to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                            }), e.jsx("svg", {
+                                xmlns: "http://www.w3.org/2000/svg",
+                                viewBox: "0 0 24 24",
+                                fill: "none",
+                                stroke: "currentColor",
+                                strokeWidth: "2",
+                                strokeLinecap: "round",
+                                strokeLinejoin: "round",
+                                className: "w-4 h-4 mr-2",
+                                children: e.jsx("path", {
+                                    d: "M12 2C6 2 2 12 2 18s4 4 10 4 10 2 10-4-4-16-10-16z"
+                                })
+                            }), "Eggs"]
+                        }), e.jsxs(M, {
+                            variant: "outline",
+                            size: "default",
+                            className: "bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-purple-500/30 hover:bg-gray-800 text-purple-400 hover:border-purple-500/50 relative overflow-hidden group shadow-md",
+                            onClick: () => {
+                                var g;
+                                (g = document.getElementById("bloodmoon-section")) == null || g.scrollIntoView({
+                                    behavior: "smooth"
+                                })
+                            }
+                            ,
+                            children: [e.jsx("span", {
+                                className: "absolute inset-0 w-full h-full bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                            }), e.jsx(Ve, {
+                                className: "w-4 h-4 mr-2"
+                            }), "Blood Moon Shop"]
+                        })]
+                    }), e.jsx("div", {
+                        id: "weather-section",
+                        className: "mb-6 weather-card-container",
+                        children: K ? e.jsx(F, {
+                            className: "bg-gray-800/50 border-gray-700",
+                            children: e.jsx(te, {
+                                className: "p-8 text-center",
+                                children: e.jsxs("div", {
+                                    className: "animate-pulse",
+                                    children: [e.jsx("div", {
+                                        className: "w-16 h-16 bg-gray-700 rounded-full mx-auto mb-3"
+                                    }), e.jsx("div", {
+                                        className: "h-6 bg-gray-700 rounded w-36 mx-auto mb-2"
+                                    }), e.jsx("div", {
+                                        className: "h-5 bg-gray-700 rounded w-24 mx-auto"
+                                    })]
+                                })
+                            })
+                        }) : Q ? e.jsxs(F, {
+                            className: "bg-gradient-to-br from-blue-900/50 to-purple-900/50 border-blue-500/30",
+                            children: [e.jsxs(be, {
+                                className: "text-center pb-3",
+                                children: [e.jsx("div", {
+                                    className: "flex justify-center mb-3",
+                                    children: e.jsxs("div", {
+                                        className: "relative",
+                                        children: [e.jsxs("div", {
+                                            className: "absolute inset-0 animate-spin-slow",
+                                            children: [e.jsx(tt, {
+                                                className: "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-yellow-400"
+                                            }), e.jsx(st, {
+                                                className: "absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-6 h-6 text-blue-400"
+                                            }), e.jsx(rt, {
+                                                className: "absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-6 h-6 text-blue-200"
+                                            }), e.jsx(at, {
+                                                className: "absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-purple-400"
+                                            })]
+                                        }), e.jsx(Re, {
+                                            className: "relative w-16 h-16 text-gray-400 animate-pulse"
+                                        })]
+                                    })
+                                }), e.jsx(je, {
+                                    className: "text-xl font-bold text-white animate-pulse",
+                                    children: "Waiting for Next Weather"
+                                })]
+                            }), e.jsxs(te, {
+                                className: "text-center pb-6",
+                                children: [e.jsxs("div", {
+                                    className: "flex justify-center items-center gap-2",
+                                    children: [e.jsx(ot, {
+                                        className: "w-4 h-4 text-blue-300 animate-pulse"
+                                    }), e.jsx("p", {
+                                        className: "text-sm text-blue-300 animate-pulse",
+                                        children: "Checking every 3 seconds..."
+                                    })]
+                                }), e.jsx("div", {
+                                    className: "mt-3 flex justify-center",
+                                    children: e.jsxs(M, {
+                                        onClick: () => Z("weather"),
+                                        size: "sm",
+                                        variant: "outline",
+                                        className: "border-blue-500/50 hover:bg-blue-900/20",
+                                        children: [e.jsx(ve, {
+                                            className: "w-4 h-4 mr-2"
+                                        }), "Weather History"]
+                                    })
+                                })]
+                            })]
+                        }) : U ? e.jsxs(F, {
+                            className: `overflow-hidden border-0 shadow-xl bg-gradient-to-br ${Ke(U.display_name)}`,
+                            children: [e.jsxs(be, {
+                                className: "text-center pb-3",
+                                children: [e.jsx("div", {
+                                    className: "flex justify-center mb-3",
+                                    children: Ye(U.display_name)
+                                }), e.jsx(je, {
+                                    className: "text-2xl font-bold text-white",
+                                    children: U.display_name
+                                })]
+                            }), e.jsxs(te, {
+                                className: "text-center pb-6",
+                                children: [U.description && e.jsx("p", {
+                                    className: "text-white/90 mb-3",
+                                    children: U.description
+                                }), e.jsxs("div", {
+                                    className: "flex justify-center gap-3 mb-4",
+                                    children: [U.temperature !== void 0 && e.jsxs(fe, {
+                                        variant: "secondary",
+                                        className: "px-3 py-1 bg-white/20 text-white border-white/30",
+                                        children: [U.temperature, "°F"]
+                                    }), U.humidity !== void 0 && e.jsxs(fe, {
+                                        variant: "secondary",
+                                        className: "px-3 py-1 bg-white/20 text-white border-white/30",
+                                        children: [U.humidity, "% Humidity"]
+                                    })]
+                                }), e.jsxs(M, {
+                                    onClick: () => Z("weather"),
+                                    size: "sm",
+                                    variant: "outline",
+                                    className: "border-white/30 hover:bg-white/10 text-white",
+                                    children: [e.jsx(ve, {
+                                        className: "w-4 h-4 mr-2"
+                                    }), "Weather History"]
+                                })]
+                            })]
+                        }) : ue ? e.jsx(F, {
+                            className: "bg-red-900/30 border-red-500/50",
+                            children: e.jsx(te, {
+                                className: "p-6 text-center",
+                                children: e.jsxs("div", {
+                                    className: "text-red-400",
+                                    children: [e.jsx(Re, {
+                                        className: "w-12 h-12 mx-auto mb-3"
+                                    }), e.jsx("p", {
+                                        className: "font-medium",
+                                        children: ue
+                                    })]
+                                })
+                            })
+                        }) : null
+                    }), e.jsx("div", {
+                        id: "bloodmoon-section",
+                        className: "mb-6 bloodmoon-card-container",
+                        children: X ? e.jsx(F, {
+                            className: "bg-gray-800/50 border-gray-700",
+                            children: e.jsx(te, {
+                                className: "p-8 text-center",
+                                children: e.jsxs("div", {
+                                    className: "animate-pulse",
+                                    children: [e.jsx("div", {
+                                        className: "w-16 h-16 bg-gray-700 rounded-full mx-auto mb-3"
+                                    }), e.jsx("div", {
+                                        className: "h-6 bg-gray-700 rounded w-36 mx-auto mb-2"
+                                    }), e.jsx("div", {
+                                        className: "h-5 bg-gray-700 rounded w-24 mx-auto"
+                                    })]
+                                })
+                            })
+                        }) : ( () => {
+                            const y = new Date().getUTCMinutes()
+                              , L = y >= 0 && y < 15;
+                            return console.log("Blood Moon Shop Debug:", {
+                                isInWindow: L,
+                                bloodMoonShopItemsLength: z.length,
+                                bloodMoonShopActive: ze,
+                                minutes: y
+                            }),
+                            L && z.length === 0 ? e.jsxs(F, {
+                                className: "overflow-hidden border-purple-500/30 shadow-xl bg-gradient-to-br from-purple-900/50 to-indigo-900/50",
+                                children: [e.jsxs(be, {
+                                    className: "text-center pb-3",
+                                    children: [e.jsx("div", {
+                                        className: "flex justify-center mb-3",
+                                        children: e.jsx(Ve, {
+                                            className: "w-12 h-12 text-purple-400"
+                                        })
+                                    }), e.jsx(je, {
+                                        className: "text-2xl font-bold text-white",
+                                        children: "Blood Moon Shop"
+                                    })]
+                                }), e.jsx(te, {
+                                    className: "pb-6",
+                                    children: e.jsxs("div", {
+                                        className: "animate-pulse flex flex-col items-center justify-center py-8",
+                                        children: [e.jsx(de, {
+                                            size: 32,
+                                            className: "text-purple-400 animate-spin mb-4"
+                                        }), e.jsx("div", {
+                                            className: "text-xl font-semibold text-purple-400 mb-2",
+                                            children: "Updating Blood Moon Stock"
+                                        }), e.jsx("p", {
+                                            className: "text-purple-300 max-w-md text-center",
+                                            children: "Checking for Blood Moon Shop items. The shop is currently open from :00 to :15."
+                                        }), e.jsx("p", {
+                                            className: "text-purple-300/70 text-sm mt-2",
+                                            children: "Checking for updates every 3 seconds..."
+                                        }), e.jsx("div", {
+                                            className: "bg-yellow-800/20 border border-yellow-500/30 rounded-lg p-3 mt-4 text-center max-w-md",
+                                            children: e.jsxs("p", {
+                                                className: "text-yellow-200 text-sm",
+                                                children: [e.jsx("span", {
+                                                    className: "font-semibold",
+                                                    children: "Note:"
+                                                }), " This feature is still in beta and may get stuck in an updating state for some cycles. We will remove this notice once it's 100% operational, which should be very soon."]
+                                            })
+                                        })]
+                                    })
+                                })]
+                            }) : ze && z.length > 0 ? e.jsxs(F, {
+                                className: "overflow-hidden border-purple-500/30 shadow-xl bg-gradient-to-br from-purple-900/50 to-indigo-900/50",
+                                children: [e.jsxs(be, {
+                                    className: "text-center pb-3",
+                                    children: [e.jsx("div", {
+                                        className: "flex justify-center mb-3",
+                                        children: e.jsx(Ve, {
+                                            className: "w-12 h-12 text-purple-400"
+                                        })
+                                    }), e.jsx(je, {
+                                        className: "text-2xl font-bold text-white",
+                                        children: "Blood Moon Shop"
+                                    })]
+                                }), e.jsxs(te, {
+                                    className: "pb-6",
+                                    children: [e.jsx("p", {
+                                        className: "text-purple-300 text-center mb-4",
+                                        children: "Special items available during Blood Moon event"
+                                    }), e.jsx("div", {
+                                        className: "bg-purple-800/20 border border-purple-500/30 rounded-lg p-3 mb-4 text-center",
+                                        children: e.jsxs("p", {
+                                            className: "text-purple-200 text-sm",
+                                            children: [e.jsx("span", {
+                                                className: "font-semibold",
+                                                children: "Tip:"
+                                            }), " You can keep switching servers till you find one with the bloodmoon weather within this time"]
+                                        })
+                                    }), e.jsx("div", {
+                                        className: "bg-yellow-800/20 border border-yellow-500/30 rounded-lg p-3 mb-4 text-center",
+                                        children: e.jsxs("p", {
+                                            className: "text-yellow-200 text-sm",
+                                            children: [e.jsx("span", {
+                                                className: "font-semibold",
+                                                children: "Note:"
+                                            }), " This feature is still in beta and may get stuck in an updating state for some cycles. We will remove this notice once it's 100% operational, which should be very soon."]
+                                        })
+                                    }), e.jsx("div", {
+                                        className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4",
+                                        children: z.map($ => e.jsxs("div", {
+                                            className: "bg-purple-900/30 border border-purple-500/30 rounded-lg p-3",
+                                            children: [e.jsxs("div", {
+                                                className: "flex items-center justify-between mb-2",
+                                                children: [e.jsx("span", {
+                                                    className: "text-white font-medium",
+                                                    children: $.display_name
+                                                }), $.multiplier && $.multiplier !== 1 && e.jsxs(fe, {
+                                                    variant: "secondary",
+                                                    className: "bg-purple-700/30 text-purple-200",
+                                                    children: ["x", $.multiplier]
+                                                })]
+                                            }), e.jsxs("div", {
+                                                className: "text-purple-300",
+                                                children: [$.price.toLocaleString(), " Sheckles"]
+                                            })]
+                                        }, $.item_id))
+                                    }), e.jsx("div", {
+                                        className: "flex justify-center",
+                                        children: e.jsxs(M, {
+                                            onClick: () => Z("bloodmoonshop"),
+                                            size: "sm",
+                                            variant: "outline",
+                                            className: "border-purple-500/50 hover:bg-purple-900/20 text-purple-300",
+                                            children: [e.jsx(ve, {
+                                                className: "w-4 h-4 mr-2"
+                                            }), "Blood Moon History"]
+                                        })
+                                    })]
+                                })]
+                            }) : e.jsxs(F, {
+                                className: "bg-gray-800/50 border-gray-700",
+                                children: [e.jsxs(be, {
+                                    className: "text-center pb-3",
+                                    children: [e.jsx("div", {
+                                        className: "flex justify-center mb-3",
+                                        children: e.jsx(Ve, {
+                                            className: "w-12 h-12 text-gray-500"
+                                        })
+                                    }), e.jsx(je, {
+                                        className: "text-xl font-bold text-gray-400",
+                                        children: "Blood Moon Shop - Closed"
+                                    })]
+                                }), e.jsxs(te, {
+                                    className: "text-center pb-6",
+                                    children: [e.jsx("p", {
+                                        className: "text-gray-400 mb-3",
+                                        children: "Blood Moon Shop is available from :00 to :15 every hour"
+                                    }), e.jsx("div", {
+                                        className: "bg-gray-800/20 border border-gray-600/30 rounded-lg p-3 mb-4",
+                                        children: e.jsxs("p", {
+                                            className: "text-gray-300 text-sm",
+                                            children: [e.jsx("span", {
+                                                className: "font-semibold",
+                                                children: "Tip:"
+                                            }), " You can keep switching servers till you find one with the bloodmoon weather within the time window (:00-:15)"]
+                                        })
+                                    }), e.jsx("div", {
+                                        className: "bg-yellow-800/20 border border-yellow-500/30 rounded-lg p-3 mb-4",
+                                        children: e.jsxs("p", {
+                                            className: "text-yellow-200 text-sm",
+                                            children: [e.jsx("span", {
+                                                className: "font-semibold",
+                                                children: "Note:"
+                                            }), " This feature is still in beta and may get stuck in an updating state for some cycles. We will remove this notice once it's 100% operational, which should be very soon."]
+                                        })
+                                    }), e.jsxs("div", {
+                                        className: "flex justify-center items-center gap-2 mb-4",
+                                        children: [e.jsx(ot, {
+                                            className: "w-4 h-4 text-gray-400"
+                                        }), e.jsx("p", {
+                                            className: "text-sm text-gray-400",
+                                            children: "Check back at the start of the next hour"
+                                        })]
+                                    }), e.jsxs(M, {
+                                        onClick: () => Z("bloodmoonshop"),
+                                        size: "sm",
+                                        variant: "outline",
+                                        className: "border-gray-600/50 hover:bg-gray-800/20 text-gray-400",
+                                        children: [e.jsx(ve, {
+                                            className: "w-4 h-4 mr-2"
+                                        }), "Blood Moon History"]
+                                    })]
+                                })]
+                            })
+                        }
+                        )()
+                    }), e.jsx("div", {
+                        id: "gear-section",
+                        className: "mb-6 stock-card-container",
+                        children: e.jsx(Qe, {
+                            title: T ? "PREVIOUS GEAR STOCK" : "GEAR STOCK",
+                            type: "gear_stock",
+                            stocks: T ? u : t,
+                            isValid: n,
+                            isUpdating: j,
+                            isMaintenanceMode: v,
+                            timeUntilNextUpdate: c,
+                            previousStocks: u,
+                            onShowPrevious: Oe,
+                            onViewHistory: () => Z("gear_stock"),
+                            refreshing: a,
+                            isViewingPrevious: T
+                        })
+                    }), e.jsx("div", {
+                        id: "seeds-section",
+                        className: "mb-6 stock-card-container",
+                        children: e.jsx(Qe, {
+                            title: R ? "PREVIOUS SEEDS STOCK" : "SEEDS STOCK",
+                            type: "seeds_stock",
+                            stocks: R ? d : s,
+                            isValid: l,
+                            isUpdating: x,
+                            isMaintenanceMode: _,
+                            timeUntilNextUpdate: h,
+                            previousStocks: d,
+                            onShowPrevious: re,
+                            onViewHistory: () => Z("seeds_stock"),
+                            refreshing: a,
+                            isViewingPrevious: R
+                        })
+                    }), e.jsx("div", {
+                        id: "eggs-section",
+                        className: "mb-6 stock-card-container",
+                        children: e.jsx(Qe, {
+                            title: he ? "PREVIOUS EGG STOCK" : "EGG STOCK",
+                            type: "egg_stock",
+                            stocks: he ? r : o,
+                            isValid: f,
+                            isUpdating: k,
+                            isMaintenanceMode: m,
+                            timeUntilNextUpdate: G,
+                            previousStocks: r,
+                            onShowPrevious: ke,
+                            onViewHistory: () => Z("egg_stock"),
+                            refreshing: a,
+                            isViewingPrevious: he
+                        })
+                    }), e.jsxs("div", {
+                        className: "flex flex-col gap-4 mb-8",
+                        children: [e.jsxs("div", {
+                            className: "discord-invite-container",
+                            children: [e.jsxs("div", {
+                                className: "mb-4 bg-green-800/30 border border-green-500/30 rounded-lg p-4 flex items-center gap-3",
+                                children: [e.jsx("div", {
+                                    className: "bg-green-500/20 p-2 rounded-full",
+                                    children: e.jsx("svg", {
+                                        xmlns: "http://www.w3.org/2000/svg",
+                                        width: "24",
+                                        height: "24",
+                                        viewBox: "0 0 24 24",
+                                        fill: "none",
+                                        stroke: "currentColor",
+                                        strokeWidth: "2",
+                                        strokeLinecap: "round",
+                                        strokeLinejoin: "round",
+                                        className: "text-green-400",
+                                        children: e.jsx("path", {
+                                            d: "M22 12h-4l-3 9L9 3l-3 9H2"
+                                        })
+                                    })
+                                }), e.jsxs("div", {
+                                    children: [e.jsx("h3", {
+                                        className: "text-green-400 font-semibold mb-1",
+                                        children: "Discord Bot Alerts"
+                                    }), e.jsxs("p", {
+                                        className: "text-green-300/70 text-sm",
+                                        children: ["Add our Discord bot to your server! ", e.jsx("span", {
+                                            className: "text-yellow-300 font-medium",
+                                            children: "BONUS:"
+                                        }), " Choose which specific items you want the bot to alert you for!"]
+                                    })]
+                                })]
+                            }), e.jsx(kt, {})]
+                        }), e.jsxs("div", {
+                            className: "backdrop-blur-md bg-gradient-to-br from-gray-900/80 to-gray-950/80 rounded-xl border border-green-500/20 shadow-lg shadow-green-500/5 p-6 relative overflow-hidden",
+                            children: [e.jsxs("div", {
+                                className: "absolute inset-0 overflow-hidden opacity-5 pointer-events-none",
+                                children: [e.jsx("div", {
+                                    className: "absolute -top-10 -right-10 w-40 h-40 rounded-full bg-green-500/20 blur-3xl"
+                                }), e.jsx("div", {
+                                    className: "absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-emerald-500/20 blur-3xl"
+                                })]
+                            }), e.jsxs("div", {
+                                className: "absolute -top-2 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-background/90 border border-green-500/30 rounded-full flex items-center",
+                                children: [e.jsxs("svg", {
+                                    xmlns: "http://www.w3.org/2000/svg",
+                                    viewBox: "0 0 24 24",
+                                    fill: "none",
+                                    stroke: "currentColor",
+                                    strokeWidth: "2",
+                                    strokeLinecap: "round",
+                                    strokeLinejoin: "round",
+                                    className: "w-4 h-4 mr-1 text-green-400",
+                                    children: [e.jsx("circle", {
+                                        cx: "12",
+                                        cy: "12",
+                                        r: "10"
+                                    }), e.jsx("path", {
+                                        d: "M12 16v-4"
+                                    }), e.jsx("path", {
+                                        d: "M12 8h.01"
+                                    })]
+                                }), e.jsx("span", {
+                                    className: "text-xs font-medium text-green-400",
+                                    children: "INFORMATION"
+                                })]
+                            }), e.jsx("h2", {
+                                className: "text-xl font-bold mb-4 text-white mt-4",
+                                children: "About Grow a Garden Stock"
+                            }), e.jsxs("div", {
+                                className: "space-y-4 relative z-10",
+                                children: [e.jsxs("div", {
+                                    className: "bg-gray-800/40 rounded-lg p-3 border border-gray-700/50",
+                                    children: [e.jsxs("div", {
+                                        className: "flex items-center mb-2",
+                                        children: [e.jsx("div", {
+                                            className: "w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center mr-2",
+                                            children: e.jsxs("svg", {
+                                                xmlns: "http://www.w3.org/2000/svg",
+                                                viewBox: "0 0 24 24",
+                                                fill: "none",
+                                                stroke: "currentColor",
+                                                strokeWidth: "2",
+                                                strokeLinecap: "round",
+                                                strokeLinejoin: "round",
+                                                className: "w-4 h-4 text-blue-400",
+                                                children: [e.jsx("circle", {
+                                                    cx: "12",
+                                                    cy: "12",
+                                                    r: "3"
+                                                }), e.jsx("path", {
+                                                    d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                                                })]
+                                            })
+                                        }), e.jsx("div", {
+                                            className: "text-blue-400 font-medium",
+                                            children: "Gear Stock"
+                                        })]
+                                    }), e.jsxs("div", {
+                                        className: "pl-10",
+                                        children: [e.jsx("p", {
+                                            className: "text-gray-300 text-sm",
+                                            children: "Tools and equipment for gardening. Essential for maintaining and improving your garden."
+                                        }), e.jsx(fe, {
+                                            variant: "outline",
+                                            className: "mt-2 text-blue-300 border-blue-500/30 bg-blue-900/20",
+                                            children: "Updates every 5 minutes from 00:00 UTC"
+                                        })]
+                                    })]
+                                }), e.jsxs("div", {
+                                    className: "bg-gray-800/40 rounded-lg p-3 border border-gray-700/50",
+                                    children: [e.jsxs("div", {
+                                        className: "flex items-center mb-2",
+                                        children: [e.jsx("div", {
+                                            className: "w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center mr-2",
+                                            children: e.jsx("svg", {
+                                                xmlns: "http://www.w3.org/2000/svg",
+                                                viewBox: "0 0 24 24",
+                                                fill: "none",
+                                                stroke: "currentColor",
+                                                strokeWidth: "2",
+                                                strokeLinecap: "round",
+                                                strokeLinejoin: "round",
+                                                className: "w-4 h-4 text-green-400",
+                                                children: e.jsx("path", {
+                                                    d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                                                })
+                                            })
+                                        }), e.jsx("div", {
+                                            className: "text-green-400 font-medium",
+                                            children: "Seeds Stock"
+                                        })]
+                                    }), e.jsxs("div", {
+                                        className: "pl-10",
+                                        children: [e.jsx("p", {
+                                            className: "text-gray-300 text-sm",
+                                            children: "Various plant seeds to grow in your garden. Plant these to grow valuable crops."
+                                        }), e.jsx(fe, {
+                                            variant: "outline",
+                                            className: "mt-2 text-green-300 border-green-500/30 bg-green-900/20",
+                                            children: "Updates every 5 minutes from 00:00 UTC"
+                                        })]
+                                    })]
+                                }), e.jsxs("div", {
+                                    className: "bg-gray-800/40 rounded-lg p-3 border border-gray-700/50",
+                                    children: [e.jsxs("div", {
+                                        className: "flex items-center mb-2",
+                                        children: [e.jsx("div", {
+                                            className: "w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center mr-2",
+                                            children: e.jsx("svg", {
+                                                xmlns: "http://www.w3.org/2000/svg",
+                                                viewBox: "0 0 24 24",
+                                                fill: "none",
+                                                stroke: "currentColor",
+                                                strokeWidth: "2",
+                                                strokeLinecap: "round",
+                                                strokeLinejoin: "round",
+                                                className: "w-4 h-4 text-yellow-400",
+                                                children: e.jsx("path", {
+                                                    d: "M12 2C6 2 2 12 2 18s4 4 10 4 10 2 10-4-4-16-10-16z"
+                                                })
+                                            })
+                                        }), e.jsx("div", {
+                                            className: "text-yellow-400 font-medium",
+                                            children: "Egg Stock"
+                                        })]
+                                    }), e.jsxs("div", {
+                                        className: "pl-10",
+                                        children: [e.jsx("p", {
+                                            className: "text-gray-300 text-sm",
+                                            children: "Special collectible items with unique bonuses. These rare items can help boost your garden's productivity."
+                                        }), e.jsx(fe, {
+                                            variant: "outline",
+                                            className: "mt-2 text-yellow-300 border-yellow-500/30 bg-yellow-900/20",
+                                            children: "Updates every 30 minutes from 00:00 UTC"
+                                        })]
+                                    })]
+                                })]
+                            }), e.jsx("div", {
+                                className: "mt-4 text-green-400 text-xs px-3 py-2 bg-green-900/30 rounded-md border border-green-700/30 inline-block",
+                                children: "Currency: Sheckles"
+                            })]
+                        })]
+                    }), e.jsxs("div", {
+                        className: "flex justify-center mt-4 mb-8 gap-3",
+                        children: [e.jsxs(M, {
+                            variant: "outline",
+                            size: "sm",
+                            className: "bg-gray-800/80 border-gray-700/50 hover:bg-gray-800 text-gray-400 hover:text-white rounded-full px-4",
+                            onClick: () => {
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: "smooth"
+                                })
+                            }
+                            ,
+                            children: [e.jsx("svg", {
+                                xmlns: "http://www.w3.org/2000/svg",
+                                viewBox: "0 0 24 24",
+                                fill: "none",
+                                stroke: "currentColor",
+                                strokeWidth: "2",
+                                strokeLinecap: "round",
+                                strokeLinejoin: "round",
+                                className: "w-4 h-4 mr-1",
+                                children: e.jsx("path", {
+                                    d: "m18 15-6-6-6 6"
+                                })
+                            }), "Back to top"]
+                        }), e.jsxs(M, {
+                            variant: "outline",
+                            size: "sm",
+                            className: "bg-gray-800/80 border-green-700/50 hover:bg-gray-800 text-green-400 hover:text-green-300 rounded-full px-4",
+                            onClick: () => ae(),
+                            disabled: a,
+                            children: [e.jsx(de, {
+                                size: 16,
+                                className: `mr-2 ${a ? "animate-spin text-yellow-400" : ""}`
+                            }), a ? "Refreshing..." : "Refresh Data"]
+                        })]
+                    }), e.jsxs("div", {
+                        className: "mt-12 mb-8 bg-gradient-to-br from-gray-900/50 to-gray-950/50 rounded-xl border border-green-500/20 p-6",
+                        children: [e.jsx("h2", {
+                            className: "text-2xl font-bold text-white mb-6 text-center",
+                            children: "How to Use This Grow a Garden Stock Tracker"
+                        }), e.jsxs("div", {
+                            className: "grid md:grid-cols-2 gap-6 max-w-4xl mx-auto",
+                            children: [e.jsxs("div", {
+                                children: [e.jsx("h3", {
+                                    className: "text-lg font-semibold text-green-400 mb-3",
+                                    children: "🎯 Quick Start Guide"
+                                }), e.jsxs("ol", {
+                                    className: "space-y-2 text-gray-300",
+                                    children: [e.jsxs("li", {
+                                        className: "flex items-start",
+                                        children: [e.jsx("span", {
+                                            className: "text-green-400 font-bold mr-2",
+                                            children: "1."
+                                        }), e.jsxs("span", {
+                                            children: ["Check the ", e.jsx("strong", {
+                                                children: "current weather"
+                                            }), " at the top - it affects gameplay and shop availability"]
+                                        })]
+                                    }), e.jsxs("li", {
+                                        className: "flex items-start",
+                                        children: [e.jsx("span", {
+                                            className: "text-green-400 font-bold mr-2",
+                                            children: "2."
+                                        }), e.jsxs("span", {
+                                            children: ["Monitor ", e.jsx("strong", {
+                                                children: "Blood Moon Shop"
+                                            }), " (:00-:15 UTC) for exclusive items"]
+                                        })]
+                                    }), e.jsxs("li", {
+                                        className: "flex items-start",
+                                        children: [e.jsx("span", {
+                                            className: "text-green-400 font-bold mr-2",
+                                            children: "3."
+                                        }), e.jsxs("span", {
+                                            children: ["Watch ", e.jsx("strong", {
+                                                children: "countdown timers"
+                                            }), " to know when shops will refresh"]
+                                        })]
+                                    }), e.jsxs("li", {
+                                        className: "flex items-start",
+                                        children: [e.jsx("span", {
+                                            className: "text-green-400 font-bold mr-2",
+                                            children: "4."
+                                        }), e.jsxs("span", {
+                                            children: ["Click ", e.jsx("strong", {
+                                                children: '"View History"'
+                                            }), " to see past stock patterns"]
+                                        })]
+                                    }), e.jsxs("li", {
+                                        className: "flex items-start",
+                                        children: [e.jsx("span", {
+                                            className: "text-green-400 font-bold mr-2",
+                                            children: "5."
+                                        }), e.jsxs("span", {
+                                            children: ["Join our ", e.jsx("strong", {
+                                                children: "Discord"
+                                            }), " for instant item alerts"]
+                                        })]
+                                    })]
+                                })]
+                            }), e.jsxs("div", {
+                                children: [e.jsx("h3", {
+                                    className: "text-lg font-semibold text-yellow-400 mb-3",
+                                    children: "⚡ Pro Tips"
+                                }), e.jsxs("ul", {
+                                    className: "space-y-2 text-gray-300",
+                                    children: [e.jsxs("li", {
+                                        className: "flex items-start",
+                                        children: [e.jsx("span", {
+                                            className: "text-yellow-400 mr-2",
+                                            children: "•"
+                                        }), e.jsxs("span", {
+                                            children: [e.jsx("strong", {
+                                                children: "Server hop"
+                                            }), " during Blood Moon times to find the right weather"]
+                                        })]
+                                    }), e.jsxs("li", {
+                                        className: "flex items-start",
+                                        children: [e.jsx("span", {
+                                            className: "text-yellow-400 mr-2",
+                                            children: "•"
+                                        }), e.jsxs("span", {
+                                            children: [e.jsx("strong", {
+                                                children: "Plant during rain"
+                                            }), " for 2x growth speed boost"]
+                                        })]
+                                    }), e.jsxs("li", {
+                                        className: "flex items-start",
+                                        children: [e.jsx("span", {
+                                            className: "text-yellow-400 mr-2",
+                                            children: "•"
+                                        }), e.jsxs("span", {
+                                            children: [e.jsx("strong", {
+                                                children: "Bookmark this page"
+                                            }), " for quick access to live updates"]
+                                        })]
+                                    }), e.jsxs("li", {
+                                        className: "flex items-start",
+                                        children: [e.jsx("span", {
+                                            className: "text-yellow-400 mr-2",
+                                            children: "•"
+                                        }), e.jsxs("span", {
+                                            children: ["Use ", e.jsx("strong", {
+                                                children: "Discord bot"
+                                            }), " to get notified for specific items"]
+                                        })]
+                                    }), e.jsxs("li", {
+                                        className: "flex items-start",
+                                        children: [e.jsx("span", {
+                                            className: "text-yellow-400 mr-2",
+                                            children: "•"
+                                        }), e.jsxs("span", {
+                                            children: ["Check ", e.jsx("strong", {
+                                                children: "stock history"
+                                            }), " to predict item rotations"]
+                                        })]
+                                    })]
+                                })]
+                            })]
+                        })]
+                    }), e.jsxs("div", {
+                        className: "mt-8 mb-8",
+                        children: [e.jsx("h2", {
+                            className: "text-2xl font-bold text-white mb-6 text-center",
+                            children: "Frequently Asked Questions"
+                        }), e.jsxs("div", {
+                            className: "grid gap-4 max-w-4xl mx-auto",
+                            children: [e.jsxs("div", {
+                                className: "bg-gray-800/50 border border-gray-700 rounded-lg p-5",
+                                children: [e.jsx("h3", {
+                                    className: "text-lg font-semibold text-green-400 mb-2",
+                                    children: "When does Blood Moon Shop open in Grow a Garden?"
+                                }), e.jsx("p", {
+                                    className: "text-gray-300",
+                                    children: "Blood Moon Shop opens from :00 to :15 every hour (UTC time). For example: 1:00-1:15 PM, 2:00-2:15 PM, etc. You need to find a server with Blood Moon weather during these times. Keep server hopping until you find one!"
+                                })]
+                            }), e.jsxs("div", {
+                                className: "bg-gray-800/50 border border-gray-700 rounded-lg p-5",
+                                children: [e.jsx("h3", {
+                                    className: "text-lg font-semibold text-green-400 mb-2",
+                                    children: "How often do Grow a Garden shops refresh?"
+                                }), e.jsx("p", {
+                                    className: "text-gray-300",
+                                    children: "Seeds Shop and Gear Shop refresh every 5 minutes starting from 00:00 UTC. Egg Shop refreshes every 30 minutes. Weather changes randomly but we check every 3 seconds for instant updates."
+                                })]
+                            }), e.jsxs("div", {
+                                className: "bg-gray-800/50 border border-gray-700 rounded-lg p-5",
+                                children: [e.jsx("h3", {
+                                    className: "text-lg font-semibold text-green-400 mb-2",
+                                    children: "How do weather events affect gameplay in Grow a Garden?"
+                                }), e.jsx("p", {
+                                    className: "text-gray-300",
+                                    children: "Rain doubles growth speed (best for planting). Thunderstorms can damage crops but create mutations. Snow slows growth by 50% but enables frost variants. Sunny is normal conditions. Blood Moon enables special shop access."
+                                })]
+                            }), e.jsxs("div", {
+                                className: "bg-gray-800/50 border border-gray-700 rounded-lg p-5",
+                                children: [e.jsx("h3", {
+                                    className: "text-lg font-semibold text-green-400 mb-2",
+                                    children: "Why is Arcaiuz the best Grow a Garden tracker?"
+                                }), e.jsx("p", {
+                                    className: "text-gray-300",
+                                    children: "We update every 3 seconds (fastest available), track Blood Moon Shop (exclusive feature), monitor all weather conditions in real-time, offer Discord bot alerts, and provide complete stock history. Other trackers update hourly or miss Blood Moon Shop entirely."
+                                })]
+                            })]
+                        })]
+                    }), e.jsxs("div", {
+                        className: "mt-8 pt-8 border-t border-gray-800",
+                        children: [e.jsx("h3", {
+                            className: "text-lg font-semibold text-gray-300 mb-4 text-center",
+                            children: "More Roblox Trading Tools"
+                        }), e.jsxs("div", {
+                            className: "grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto",
+                            children: [e.jsxs("a", {
+                                href: "/trade-helper/grow-a-garden",
+                                className: "group bg-gray-800/50 hover:bg-gray-800/70 border border-gray-700 hover:border-green-500/50 rounded-lg p-4 transition-all text-center",
+                                children: [e.jsx("h4", {
+                                    className: "font-medium text-white group-hover:text-green-400 transition-colors",
+                                    children: "Grow a Garden Values"
+                                }), e.jsx("p", {
+                                    className: "text-sm text-gray-400 mt-1",
+                                    children: "Check item values & WFL calculator"
+                                })]
+                            }), e.jsxs("a", {
+                                href: "/blox-fruits-stock",
+                                className: "group bg-gray-800/50 hover:bg-gray-800/70 border border-gray-700 hover:border-blue-500/50 rounded-lg p-4 transition-all text-center",
+                                children: [e.jsx("h4", {
+                                    className: "font-medium text-white group-hover:text-blue-400 transition-colors",
+                                    children: "Blox Fruits Stock"
+                                }), e.jsx("p", {
+                                    className: "text-sm text-gray-400 mt-1",
+                                    children: "Live fruit stock tracking"
+                                })]
+                            }), e.jsxs("a", {
+                                href: "/values-and-wfl",
+                                className: "group bg-gray-800/50 hover:bg-gray-800/70 border border-gray-700 hover:border-purple-500/50 rounded-lg p-4 transition-all text-center",
+                                children: [e.jsx("h4", {
+                                    className: "font-medium text-white group-hover:text-purple-400 transition-colors",
+                                    children: "All Games WFL"
+                                }), e.jsx("p", {
+                                    className: "text-sm text-gray-400 mt-1",
+                                    children: "Trade calculators for 8+ games"
+                                })]
+                            })]
+                        })]
+                    })]
+                })
+            }), e.jsx(xt, {})]
+        }), e.jsx(Xe, {
+            open: oe,
+            onOpenChange: pe,
+            title: _e === "gear_stock" ? "Gear Stock" : _e === "seeds_stock" ? "Seeds Stock" : "Egg Stock",
+            stockType: _e
+        }), e.jsx(Xe, {
+            open: Fe,
+            onOpenChange: Ne,
+            title: "Weather History",
+            stockType: "weather"
+        }), e.jsx(Xe, {
+            open: qe,
+            onOpenChange: Se,
+            title: "Blood Moon Shop History",
+            stockType: "bloodmoonshop"
+        })]
+    })
+}
+;
+export {us as default};
